@@ -1,0 +1,124 @@
+---
+title: "Churn"
+author: "Eva Manuela Roncancio Ruiz, Mayerlis Lissett Moya Villafane, Guillermo Luigui Ubaldo Nieto Angarita."
+date: "2024-11-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **PREDICCIÓN DE LA PÉRDIDA DE CLIENTES DE TELECOMUNICACIONES**
+
+***Eva Manuela Roncancio Ruiz, Mayerlis Lissett Moya Villafane
+, Guillermo Luigui Ubaldo Nieto Angarita.***
+
+## **Contexto.**
+
+Este conjunto de datos consta de 100 variables y aproximadamente 100.000 registros. Se presentan distintas variables que explican los atributos propios del sector de las telecomunicaciones y diversos factores esenciales para atender las necesidades de sus clientes.
+
+La variable objetivo es la **rotación** (churn), que explica si el cliente cambiará de proveedor o no.
+
+Como objetivo inicial se quiere hacer uso de este conjunto de datos para crear un modelo Estadistico ó de Machine Learning para predecir los clientes que abandonarán o no el servicio, en función de las distintas variables disponibles.
+
+## **Objetivos.**
+
+### ***Objetivo General***
+Crear un modelo de Machine Learning para predecir los clientes que abandonarán los servicios de telecomunicaciones en función de las variables objeto de estudio seleccionadas en este proyecto.
+
+### ***Objetivos Especificos***
+
+1.   Presentar un EDA Univariado y Multivariado a profundidad.
+2.   Hacer uso de pruebas de Algoritmos para la comparación del rendimiento.
+3.   Optimizar el modelo con pruebas de Algoritmo mediante tecnicas de hiperparametro.
+4.   Presentar el modelo más optimo para la predicción del churn en el sector de las telecomunicaciones junto con el analisis de aplicabilidad.
+
+
+## **Variables Objeto.**
+
+### ***Variable Dependiente***
+Churn: Reporte de los casos de abandono (con evolución entre 31 a 60 días después de la fecha de observación)
+### ***Variables Independientes***
+Seleccioandas en la Limpieza y Transformación de los Datos
+
+---
+
+- Traducimos del Ingles al Español el nombre de las variables (columnas) registradas en la Base de Datos para facilitar el manejo de las mismas en el analisis exploratorio de los datos.
+
+https://docs.google.com/spreadsheets/d/1LVOgqnhx6SAmZuKD8iO3UyXzyE4Q5ctcPZ7sIxF4muA/edit?usp=sharing[texto del vínculo](https://)
+
+# **1. Cargue de los Datos (paquetes, librerías, data)**
+A continuación, se presenta el código desarrollado para la recolección, cargue, preparación y exploración de los datos.
+
+
+```{r eval=FALSE, include=FALSE}
+install.packages("readr")
+install.packages("readxl")
+install.packages("httr")
+install.packages("tidyverse")
+install.packages("lubridate")
+install.packages("mice")
+install.packages("caret")
+install.packages("corrplot")
+```
+
+```{r, echo=FALSE}
+# Vinculamos las librerías con funciones y herramientas necesarias para el despliegue de la data.
+library(ggplot2) #Permite crear gráficos personalizados.
+library(dplyr) #Permite manipular y analizar datos de forma eficiente.
+library(readr) #Permite leer datos de archivos de texto de forma rápida.
+library(httr) #Permite interactuar con APIs (conectar con servicios wed).
+library(tidyverse) #Permite trabajar de manera coherente y eficiente con datos tabulares.
+library(lubridate) #Permite trabajar con fechas y horas en R.
+library(corrplot) #Permite graficar las correlaciones de variables continuas.
+```
+
+```{r}
+data <- read_csv("telecom_customer_churn.csv")
+```
+# **2. Análisis Preliminar de los Datos**
+
+##**2.1. Inspeción de Datos Basicos**
+
+```{r}
+# Corroboramos la cantidad de filas (registros), columnas (varibles).
+dim(data)
+```
+```{r}
+# Visualizamos los primeros registros de la data.
+head(data)
+```
+
+```{r}
+# Visualizamos los ultimos registros de la data.
+tail(data)
+```
+
+```{r}
+# Obtenemos una especificación del tipo de variable y registro de cada columna.
+str(data)
+```
+
+## **2.2. Resumen estadístico básico**
+
+```{r}
+# Analizamos el Resumen Estadístico Básico. (min, max, media, mediana)
+summary(data)
+```
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
