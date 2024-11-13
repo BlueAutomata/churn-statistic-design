@@ -53,14 +53,18 @@ A continuación, se presenta el código desarrollado para la recolección, cargu
 
 
 ```{r eval=FALSE, include=FALSE}
-install.packages("readr")
-install.packages("readxl")
-install.packages("httr")
-install.packages("tidyverse")
-install.packages("lubridate")
-install.packages("mice")
-install.packages("caret")
-install.packages("corrplot")
+packages <- c("readr", "readxl", "httr", "tidyverse", "lubridate", "mice", "caret", "corrplot")
+
+# Install only packages that are not installed
+install_if_missing <- function(package) {
+  if (!require(package, character.only = TRUE)) {
+    install.packages(package)
+  }
+}
+
+# Apply the function to each package
+invisible(lapply(packages, install_if_missing))
+
 ```
 
 ```{r, echo=FALSE}
@@ -107,18 +111,605 @@ str(data)
 summary(data)
 ```
 
+# **3. Gestión de valores duplicados y faltantes**
+## **3.1 Manejo de duplicaciones**
 
-
-```{r cars}
-summary(cars)
+```{r}
+# Revisamos el problema que aparece en el codigo, el cual esta relacionado con la lectura de las librerias.
+attr(data, "problems")
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+# Corroboramos donde está ubicadao el error. En este caso, encontrando un tibble vacío indicando una estructura adecuada de los datos.
+problems(data)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+# Verificamos la duplicidad de la data. (variables)
+data_duplicada <- duplicated(names(data))
+print(data_duplicada)
+```
+
+```{r}
+# Observamos si hay nombres de columnas duplicadas.
+duplicate_names <- names(data)[data_duplicada]
+print(duplicate_names)
+```
+
+```{r}
+# Identificamos valores faltantes (NA) en nuestro Data Frame "data"
+valores_faltantes <- is.na(data)
+print(valores_faltantes)
+```
+```{r}
+# Identificamos el total de valores faltantes en la Data.
+total_valores_faltantes <- sum(is.na(data))
+print(total_valores_faltantes)
+```
+
+
+
+```{r}
+# Identificamos los dominios de cada columna.
+colnames(data)
+```
+## **3.2 Gestión de valores faltantes**
+
+```{r}
+data$rev_Mean <- ifelse(is.na(data$rev_Mean),
+                                    mean(data$rev_Mean, na.rm = TRUE),
+                                    data$rev_Mean)
+
+data$rev_Mean <- ifelse(is.na(data$rev_Mean),
+                                    mean(data$rev_Mean, na.rm = TRUE),
+                                    data$rev_Mean)
+
+data$totmrc_Mean <- ifelse(is.na(data$totmrc_Mean),
+                                    mean(data$totmrc_Mean, na.rm = TRUE),
+                                    data$totmrc_Mean)
+
+data$da_Mean <- ifelse(is.na(data$da_Mean),
+                                    mean(data$da_Mean, na.rm = TRUE),
+                                    data$da_Mean)
+
+data$ovrmou_Mean <- ifelse(is.na(data$ovrmou_Mean),
+                                    mean(data$ovrmou_Mean, na.rm = TRUE),
+                                    data$ovrmou_Mean)
+
+data$ovrrev_Mean <- ifelse(is.na(data$ovrrev_Mean),
+                                    mean(data$ovrrev_Mean, na.rm = TRUE),
+                                    data$ovrrev_Mean)
+
+data$vceovr_Mean <- ifelse(is.na(data$vceovr_Mean),
+                                    mean(data$vceovr_Mean, na.rm = TRUE),
+                                    data$vceovr_Mean)
+
+data$datovr_Mean  <- ifelse(is.na(data$datovr_Mean),
+                                    mean(data$datovr_Mean, na.rm = TRUE),
+                                    data$datovr_Mean)
+
+data$datovr_Mean  <- ifelse(is.na(data$datovr_Mean),
+                                    mean(data$datovr_Mean, na.rm = TRUE),
+                                    data$datovr_Mean)
+
+data$roam_Mean <- ifelse(is.na(data$roam_Mean),
+                                    mean(data$roam_Mean, na.rm = TRUE),
+                                    data$roam_Mean)
+
+data$change_mou <- ifelse(is.na(data$change_mou),
+                                    mean(data$change_mou, na.rm = TRUE),
+                                    data$change_mou)
+
+data$change_rev <- ifelse(is.na(data$change_rev),
+                                    mean(data$change_rev, na.rm = TRUE),
+                                    data$change_rev)
+
+data$avg6mou <- ifelse(is.na(data$avg6mou),
+                                    mean(data$avg6mou, na.rm = TRUE),
+                                    data$avg6mou)
+
+data$avg6qty <- ifelse(is.na(data$avg6qty),
+                                    mean(data$avg6qty, na.rm = TRUE),
+                                    data$avg6qty)
+
+data$avg6rev <- ifelse(is.na(data$avg6rev),
+                                    mean(data$avg6rev, na.rm = TRUE),
+                                    data$avg6rev)
+
+data$hnd_price <- ifelse(is.na(data$hnd_price),
+                                    mean(data$hnd_price, na.rm = TRUE),
+                                    data$hnd_price)
+
+data$phones <- ifelse(is.na(data$phones),
+                                    mean(data$phones, na.rm = TRUE),
+                                    data$phones)
+
+data$models <- ifelse(is.na(data$models),
+                                    mean(data$models, na.rm = TRUE),
+                                    data$models)
+
+data$rv <- ifelse(is.na(data$rv),mean(data$rv, na.rm = TRUE),data$rv)
+
+data$lor <- ifelse(is.na(data$lor),
+                                    mean(data$lor, na.rm = TRUE),
+                                    data$lor)
+
+Mode <- function(x) {
+  ux <- unique(na.omit(x))
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+
+data$income[is.na(data$income)] <- Mode(data$income)
+
+data$truck <- ifelse(is.na(data$truck),
+                                    mean(data$truck, na.rm = TRUE),
+                                    data$truck)
+
+data$numbcars <- ifelse(is.na(data$numbcars),
+                                    mean(data$numbcars, na.rm = TRUE),
+                                    data$numbcars)
+
+data$forgntvl <- ifelse(is.na(data$forgntvl),
+                                    mean(data$forgntvl, na.rm = TRUE),
+                                    data$forgntvl)
+
+data$area[is.na(data$area)] <- Mode(data$area)
+
+data$eqpdays <- ifelse(is.na(data$eqpdays),
+                                    mean(data$eqpdays, na.rm = TRUE),
+                                    data$eqpdays)
+
+data$ethnic[is.na(data$ethnic)] <- Mode(data$ethnic)
+
+data$marital[is.na(data$marital)] <- Mode(data$marital)
+
+# Impute missing values in the 'income' column using the Mode
+data$adults[is.na(data$adults)] <- Mode(data$adults)
+```
+
+# **4. Analisis Exploratorio Univariado y Multivariado**
+## 4.1 Análisis Univariado
+```{r}
+# Analizamos la variable "new_cell". La variable contiene 3 niveles (categorias). Un factor se puede leer como una variable categórica en R.
+data$new_cell <- as.factor(data$new_cell)
+# Identificamos los niveles e la variable "data$new_cell". (categorias).
+levels(data$new_cell)
+```
+
+Análisis: (Indica si el cliente es un nuevo usuario de telefonía móvil.) Se puede observar que: contiene 3 niveles (categorias).
+
+```{r}
+data$crclscod  <- as.factor(data$crclscod)
+levels(data$crclscod)
+```
+
+
+Análisis: (Indica la clasificación "codigo" de crédito del cliente) Se puede observar que tiene 54 niveles (categorías).
+
+```{r}
+# Analizamos la variable "area".La variable es leída como un factor que tiene 19 niveles (categorías).
+data$area   <- as.factor(data$area)
+levels(data$area)
+```
+
+# Analizamos la variable "area".La variable es leída como un factor que tiene 19 niveles (categorías).
+
+```{r}
+# Analizamos la variable "creditcd".
+data$creditcd    <- as.factor(data$creditcd)
+levels(data$creditcd)
+```
+
+
+Análisis: (Indica si el cliente posee una tarjeta de crédito.) Se puede observar que tiene 2 niveles (categorías).
+
+```{r}
+# Analizamos la variable "ethnic"
+data$ethnic    <- as.factor(data$ethnic)
+levels(data$ethnic)
+```
+
+Análisis:(Indica el código que representa el grupo étnico al que pertenece el cliente.) Se puede observar que tiene 17 niveles (categorías).
+
+### **4.2 VARIABLES CUANTITATIVAS**
+```{r}
+# Analizamos la variable "Customer_ID"
+data$Customer_ID   <- as.factor(data$Customer_ID)
+print(data$Customer_ID)
+```
+
+
+```{r}
+# Analizamos la variable "adults"
+data$adults   <- as.factor(data$adults)
+print(data$adults)
+```
+
+### **4.3 TABLAS DE FRECUENCIA Y AGRUPACIÓN DE VARIABLES**
+```{r}
+# AGRUPACIONES
+resultado_churn <- data %>%
+  group_by(churn) %>%
+  summarize(
+    avg_monthly_charges = mean(rev_Mean, na.rm = TRUE),  # Ingreso mensual promedio
+    avg_avgqty = mean(avgqty, na.rm = TRUE),                  # Promedio mensual de llamadas realizadas
+    count = n()                                                # Contar el número de registros en cada grupo
+  )
+
+# Identificamos cuantas personas rotaron de servicio
+print(resultado_churn)
+```
+
+Los clientes que no abandonaron el servicio (0 = No) tienen un ingreso mensual promedio de 59.2 y un promedio mensual de 178 llamadas al mes.
+Los clientes que sí abandonaron el servicio (1 = Yes) tienen un ingreso mensual promedio de 58.2 y un promedio mensual de llamadas de 170 llamadas al mes.
+
+
+### **4.4 Graficas**
+#### Gráfico de barras  del churn
+```{r}
+# Visualización: Diagrama de barras para CHURN
+ggplot(data, aes(x = as.factor(churn), fill = as.factor(churn))) +
+  geom_bar(position = "dodge") +
+  labs(title = "Distribución del Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Frecuencia",
+       fill = "Churn") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+#### Grafica de torta del Churn
+```{r}
+data_summary <- data %>%
+  count(churn) %>%
+  mutate(percentage = n / sum(n) * 100)
+
+ggplot(data_summary, aes(x = "", y = n, fill = as.factor(churn))) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")),
+            position = position_stack(vjust = 0.5)) +
+  labs(title = "Grafica de torta del Churn", x ="Churn (0 = No, 1 = Sí)", fill = "Churn") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+#### Gráfico de barras de usuarios por nuevo usuarios
+```{r}
+# Gráfico de barras
+ggplot(data, aes(x = new_cell, fill = new_cell)) +
+  geom_bar() +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Distribución de usuarios por nuevo usuarios", fill = "Nuevo usuario")
+```
+
+En este diagrama de Barras podemos observar 3 niveles (categorias) que corresponden a N, U y Y. Podemos observar que la frecuencia más alta radica en usuarios demarcados en el grupo U, con más de 50.000 usaurios registrados. Y el grupo con menores usuarios registrados es el N con menos de 20000 registros.
+
+
+#### Distribución de usuarios por nuevo usuarios
+```{r}
+data_summary <- data %>%
+  count(new_cell) %>%
+  mutate(percentage = n / sum(n) * 100,
+         label = paste0(round(percentage, 1), "%"))
+
+ggplot(data_summary, aes(x = "", y = n, fill = new_cell)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  geom_text(aes(label = label), position = position_stack(vjust = 0.5)) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Distribución de usuarios por nuevo usuarios", fill = "Nuevo usuario")
+```
+#### Distribución del promedio de llamadas de voz fallidas
+```{r}
+ggplot(data, aes(x = drop_vce_Mean)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
+  labs(title = "Distribución del promedio de llamadas de voz fallidas",
+       x = "Llamadas de voz fallidas",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+En este diagrama de barras observamos un sesgo hacia la derecha, lo que indica que la mayoría de los datos se concentran en los valores más bajos. Esto refleja que un alto porcentaje de llamadas no presenta fallos. En otras palabras, la mayoría de los usuarios experimenta pocas llamadas fallidas, lo que sugiere que la mayoría de los clientes tiene una buena experiencia de llamada con pocos errores.
+
+
+#### Distribución de la cantidad de minutos usados
+```{r}
+ggplot(data, aes(x = totmou)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
+  labs(title = "Distribución de la cantidad de minutos usados",
+       x = "Cantidad de minutos usados",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+Este diagrama de barras muestra el tiempo total en minutos que un cliente ha utilizado el servicio en relación con la cantidad de llamadas gestionadas. La gráfica revela un sesgo negativo hacia la derecha, lo que indica que la mayor parte de los datos se concentra en los valores más bajos a la izquierda. En otras palabras, las llamadas más frecuentes son las de menor duración, mientras que las llamadas de mayor duración son menos frecuentes.
+
+
+#### Distribución de la Cantidad de Total de Llamadas
+```{r}
+ggplot(data, aes(x = totcalls)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
+  labs(title = "Distribución de la Cantidad de Total de Llamadas",
+       x = "Cantidad de Total de Llamadas",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Este diagrama de barras muestra la cantidad total de llamadas realizadas por el cliente durante toda su relación con la compañía. Observamos un sesgo negativo hacia la derecha, lo que indica que la mayoría de los datos se concentran por debajo de las 25,000 llamadas. Sin embargo, también se detectan valores atípicos alrededor de las 75,000 llamadas o más, lo que sugiere la necesidad de evaluar si estos valores deben ser imputados.
+
+
+#### Grafica de barras de la etnicidad
+
+```{r}
+ggplot(data, aes(x=as.factor(ethnic), fill=as.factor(ethnic) )) +
+  geom_bar( ) +
+  labs(title = "Grafica de barras de la etnicidad", x = "Etnicidad", y = "Cantidad", fill = "Etnicidad") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Se observa que los tres grupos étnicos más frecuentes son el grupo N, seguido por el grupo H y, en tercer lugar, el grupo S.
+
+
+#### Distribución de Número de Adultos
+
+```{r}
+# Calculate the counts and percentages
+data_summary <- data %>%
+  count(adults) %>%
+  mutate(percentage = n / sum(n) * 100)
+
+# Create the pie chart
+ggplot(data_summary, aes(x = "", y = n, fill = as.factor(adults))) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y") +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")),
+            position = position_stack(vjust = 0.5)) +
+  labs(title = "Distribución de Número de Adultos", fill = "Número de Adultos") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))  # Center the title
+```
+Se observa que la mayoría de los clientes conviven con 2 adultos, representando el 46.1% del total. Les siguen aquellos que viven con 1 adulto (22.3%), 3 adultos (13.7%), 4 adultos (8.8%), 5 adultos (4.8%) y, finalmente, 6 adultos (4.3%).
+
+# **5. Análisis Bivariado**
+## Frecuencia de Adultos por Churn
+```{r}
+ggplot(data, aes(x = as.factor(churn), fill = as.factor(adults))) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Frecuencia de Adultos por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Número de Adultos")
+```
+Al comparar el número de adultos, no se observa ninguna influencia en el churn.
+
+## Frecuencia de Ingreso por Churn
+```{r}
+ggplot(data, aes(x = as.factor(churn), fill = as.factor(income))) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Frecuencia de Ingreso por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Ingreso")
+```
+Al comparar los diferentes tipos de ingresos de los clientes, no se observa que alguno influya en el churn.
+
+
+## Frecuencia de Área por Churn
+```{r}
+ggplot(data, aes(x = as.factor(churn), fill = area)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Frecuencia de Área por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Área")
+```
+No se observa ninguna influencia de las áreas geográficas  en el churn.
+
+## Frecuencia de Etnicidad por Churn
+```{r}
+ggplot(data, aes(x = as.factor(churn), fill = ethnic)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Frecuencia de Etnicidad por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Etnicidad")
+```
+No observamos una relación clara entre los grupos étnicos y en el churn.
+
+## Frecuencia de Estado Civil por Churn
+```{r}
+ggplot(data, aes(x = as.factor(churn), fill = marital)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Frecuencia de Estado Civil por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Estado Civil")
+```
+Al comparar el estado civil de los clientes, no se observa una diferencia significativa en el churn.
+
+## Caja de bigotes de Promedio de llamadas no contestadas por Churn
+```{r}
+# Calculate the IQR and define the outlier bounds
+Q1 <- quantile(data$unan_vce_Mean, 0.25, na.rm = TRUE)
+Q3 <- quantile(data$unan_vce_Mean, 0.75, na.rm = TRUE)
+IQR_value <- Q3 - Q1
+
+# Define the lower and upper bounds for outliers
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+# Filter data to exclude outliers
+filtered_data <- data %>%
+  filter(unan_vce_Mean >= lower_bound & unan_vce_Mean <= upper_bound)
+
+# Plot without outliers
+ggplot(filtered_data, aes(x = as.factor(churn), y = unan_vce_Mean, fill = as.factor(churn))) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(floor(min(filtered_data$unan_vce_Mean)),
+                                  ceiling(max(filtered_data$unan_vce_Mean)),
+                                  by = 10)) +
+  labs(title = "Caja de bigotes de Promedio de llamadas no contestadas por Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Llamadas no contestadas",
+       fill = "Churn")
+
+```
+Se observa que la caja de bigotes para el churn de 0 presenta un sesgo positivo, al igual que la de churn de 1. Ambas distribuciones comparten una mediana similar, con la mayoría de los datos en el rango de 5 a 30. Asimismo, no se aprecian diferencias significativas entre las cajas de bigotes del churn y el promedio de llamadas no contestadas.
+
+## Caja de bigotes de Promedio de llamadas esperadas por Churn
+```{r}
+# Calculate the IQR and define the outlier bounds
+Q1 <- quantile(data$callwait_Mean, 0.25, na.rm = TRUE)
+Q3 <- quantile(data$callwait_Mean, 0.75, na.rm = TRUE)
+IQR_value <- Q3 - Q1
+
+# Define the lower and upper bounds for outliers
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+# Filter data to exclude outliers
+filtered_data <- data %>%
+  filter(unan_vce_Mean >= lower_bound & callwait_Mean <= upper_bound)
+
+# Plot without outliers
+ggplot(filtered_data, aes(x = as.factor(churn), y = callwait_Mean, fill = as.factor(churn))) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(floor(min(filtered_data$callwait_Mean)),
+                                  ceiling(max(filtered_data$callwait_Mean)),
+                                  by = 0.1)) +
+  labs(title = "Caja de bigotes de Promedio de llamadas esperadas por Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Promedio de llamadas esperadas",
+       fill = "Churn")
+```
+Se observa que la caja de bigotes para el churn de 0 presenta un sesgo positivo, al igual que la de churn de 1. Ambas distribuciones tienen medianas similares, y la mayoría de los datos se sitúan en el rango de 0.0 a 0.7. Además, no se aprecian diferencias significativas entre las distribuciones de churn y el promedio de llamadas esperadas.
+
+# **6. Análisis Multivariado**
+```{r}
+data_numerico <- select_if(data, is.numeric)
+```
+
+```{r}
+data_subset <- data[, c("drop_vce_Mean", "drop_dat_Mean", "blck_vce_Mean",
+                        "blck_dat_Mean", "unan_vce_Mean", "unan_dat_Mean",
+                        "plcd_vce_Mean", "plcd_dat_Mean")]
+```
+
+```{r}
+# Calcular la matriz de correlación para las variables seleccionadas
+cor_matrix <- cor(data_subset, use = "complete.obs", method = "pearson")
+
+# Visualizar la matriz de correlación
+corrplot(cor_matrix, method = "color", tl.col = "black", tl.cex = 0.8)
+```
+Teniendo en cuenta que analizamos un conjunto de variables continuas relacionadas con el número promedio de llamadas no exitosas, y basándonos en el mapa de calor de la correlación de Pearson, concluimos que dichas variables presentan una correlación positiva (mayor o igual a cero). Sin embargo, esta correlación no es lo suficientemente fuerte como para considerarse significativa.
+
+```{r}
+data_subset1 <- data[, c("recv_vce_Mean","recv_sms_Mean","comp_vce_Mean","comp_dat_Mean")]
+```
+
+```{r}
+cor_matrix1 <- cor(data_subset1, use = "complete.obs", method = "pearson")
+
+corrplot(cor_matrix1, method = "color", tl.col = "black", tl.cex = 0.8)
+```
+Ahora analizamos un conjunto de variables continuas relacionadas con el número promedio de llamadas exitosas, y basándonos en el mapa de calor de la correlación de Pearson, concluimos que dichas variables presentan una correlación positiva (mayor o igual a cero). Sin embargo, esta correlación no es lo suficientemente fuerte como para considerarse significativa.
+
+```{r}
+data_subset3 <- data[, c("totcalls","totmou")]
+```
+
+```{r}
+cor_matrix2 <- cor(data_subset3, use = "complete.obs", method = "pearson")
+
+corrplot(cor_matrix2, method = "color", tl.col = "black", tl.cex = 0.8)
+```
+
+La relacion entre las variables Número total de llamadas a lo largo de la vida del cliente y Total de minutos de uso a lo largo de la vida del cliente estan muy correlacionadas.
+
+```{r}
+variables_numericas <- data %>%
+  select_if(is.numeric)
+print(variables_numericas)
+```
+
+
+```{r}
+# Calcular la matriz de correlaciones
+correlaciones <- cor(variables_numericas, data$churn)
+print(correlaciones)
+```
+```{r}
+# Ordenar las correlaciones de mayor a menor en valor absoluto (mirar si corre sin la funcion abs) para poder ver cuales son las variables con esas altas correlaciones
+correlaciones <- sort(abs(correlaciones), decreasing = TRUE)
+
+# Mostrar las 10 variables con mayor correlación absoluta
+head(correlaciones, 10)
+```
+```{r}
+# Seleccionar únicamente las columnas numéricas
+variables_numericas <- data %>%
+  select_if(is.numeric)
+print(variables_numericas)
+```
+
+```{r}
+# Calcular la matriz de correlaciones
+correlaciones <- cor(variables_numericas, data$churn)
+print(correlaciones)
+```
+```{r}
+# Prueba t de Student
+resultado_ttest <- t.test(income ~ churn, data = data)
+
+print(resultado_ttest)
+```
+
+Dado que churn es una variable binaria, la prueba t de muestras independientes es la opción adecuada para comparar los promedios de income entre los dos grupos. Los resultados indican lo siguiente:
+
+Estadístico t = -1.781: Esto significa que hay una diferencia en los ingresos medios entre los dos grupos, aunque no es muy grande. Un valor t negativo indica que el promedio de ingresos para los usuarios que no hicieron churn (churn = 0) es mayor que el de los que hicieron churn (churn = 1).
+
+Grados de libertad (df = 99998): Al ser una muestra muy grande, el número de grados de libertad es casi igual al tamaño de la muestra menos 2. Esto generalmente da más poder a la prueba estadística.
+
+p-value = 0.07491: Este valor es cercano al nivel de significancia típico (α = 0.05), pero no lo alcanza. Esto sugiere que, al usar un nivel de significancia del 5%, la diferencia en los promedios de income entre los dos grupos no es estadísticamente significativa.
+
+En resumen, aunque parece haber una diferencia en los ingresos entre los dos grupos, la prueba t indica que no es lo suficientemente fuerte como para ser estadísticamente significativa al 5%. Sin embargo, al 10%, la diferencia podría ser considerada significativa.
+
+```{r}
+# Prueba t de Student
+data$adults <- as.numeric(as.character(data$adults))
+
+resultado_ttest1 <- t.test(adults ~ churn, data = data)
+
+print(resultado_ttest1)
+```
+
+Al analizar churn con el numero de adultos en el hogar tenemos los siguientes resultados: t = 3.4645, df = 99996, p-value = 0.0005314
+Este resultado sugiere que el número de adultos en el hogar tiene una influencia significativa en el churn, con los hogares con más adultos mostrando una mayor tendencia a hacer churn. Esto podría implicar que la composición del hogar es un factor relevante para entender el comportamiento de abandono.
+
+```{r}
+# Prueba t de Student
+resultado_ttest2 <- t.test(totcalls ~ churn, data = data)
+
+print(resultado_ttest2)
+```
+
+Al analizar churn con el Número total de llamadas a lo largo de la vida del cliente tenemos los siguientes resultados: t = 4.9978, df = 97884, p-value = 5.808e-07
+El resultado sugiere que los clientes que tienden a hacer churn realizaron, en promedio, más llamadas durante su tiempo como clientes. Este hallazgo podría indicar que los usuarios con mayor actividad telefónica tienen más probabilidades de abandonar el servicio, o que el aumento en el número de llamadas podría estar relacionado con algún tipo de insatisfacción o comportamiento que precede al churn.
+
+```{r}
+# Prueba t de Student
+resultado_ttest3 <- t.test(months ~ churn, data = data)
+
+print(resultado_ttest3)
+```
+
+Al analizar churn con el Número total de meses de servicio tenemos los siguientes resultados: t = -6.6433, df = 99739, p-value = 3.083e-11.
+Este resultado indica que los clientes que hicieron churn (churn = 1) tuvieron un menor número total de meses de servicio en comparación con aquellos que no hicieron churn. La diferencia es estadísticamente significativa, lo que sugiere que la duración del servicio es un factor relevante para predecir el churn. Los clientes que permanecen menos tiempo en el servicio son más propensos a abandonar.
+
+```{r}
+# Prueba t de Student
+resultado_ttest4 <- t.test(custcare_Mean ~ churn, data = data)
+
+print(resultado_ttest4)
+```
+
+Al analizar churn con el Número medio de llamadas al servicio de atención al cliente tenemos los siguientes resultados: t = 11.522, df = 99824, p-value < 2.2e-16.
+Este resultado sugiere que los clientes que hicieron churn (churn = 1) realizaron un número significativamente mayor de llamadas al servicio de atención al cliente en comparación con los clientes que no hicieron churn (churn = 0). La diferencia es estadísticamente significativa, lo que puede indicar que los clientes que se sienten insatisfechos o tienen problemas frecuentes tienden a llamar más al servicio de atención y tienen una mayor probabilidad de abandonar el servicio.
