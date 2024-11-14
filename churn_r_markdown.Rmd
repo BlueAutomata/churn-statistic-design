@@ -53,7 +53,7 @@ A continuación, se presenta el código desarrollado para la recolección, cargu
 
 
 ```{r eval=FALSE, include=FALSE}
-packages <- c("readr", "readxl", "httr", "tidyverse", "lubridate", "mice", "caret", "corrplot")
+packages <- c("readr", "readxl", "httr", "tidyverse", "lubridate", "mice", "caret", "corrplot", "e1071", "xgboost")
 
 # Install only packages that are not installed
 install_if_missing <- function(package) {
@@ -76,6 +76,9 @@ library(httr) #Permite interactuar con APIs (conectar con servicios wed).
 library(tidyverse) #Permite trabajar de manera coherente y eficiente con datos tabulares.
 library(lubridate) #Permite trabajar con fechas y horas en R.
 library(corrplot) #Permite graficar las correlaciones de variables continuas.
+library(xgboost)
+library(caret)
+
 ```
 
 ```{r}
@@ -266,7 +269,109 @@ data$marital[is.na(data$marital)] <- Mode(data$marital)
 
 # Impute missing values in the 'income' column using the Mode
 data$adults[is.na(data$adults)] <- Mode(data$adults)
+
+data$kid0_2 <- Mode(data$kid0_2)
+
+data$kid3_5 <- Mode(data$kid3_5)
+
+data$kid6_10 <- Mode(data$kid6_10)
+
+data$kid11_15 <- Mode(data$kid11_15)
+
+data$kid16_17 <- Mode(data$kid16_17)
+
+data$creditcd <- Mode(data$creditcd)
+
+data$hnd_webcap <- Mode(data$hnd_webcap)
+
+data$ownrent <- Mode(data$ownrent)
+
+data$dwlltype <- Mode(data$dwlltype)
+
+data$dwllsize <- Mode(data$dwllsize)
+
+data$infobase <- Mode(data$infobase)
+
+data$prizm_social_one <- Mode(data$prizm_social_one)
+
+data$dualband <- Mode(data$dualband)
+
+data$refurb_new <- Mode(data$refurb_new)
+
+data$mou_Mean <- ifelse(is.na(data$mou_Mean),
+                                    mean(data$mou_Mean, na.rm = TRUE),
+                                    data$mou_Mean)
+
+data$HHstatin <- Mode(data$HHstatin)
 ```
+
+
+
+```{r}
+# Remove the 'Customer_ID' column from the dataset
+data <- data[, !names(data) %in% "Customer_ID"]
+```
+
+```{r}
+data <- data[, !names(data) %in% "creditcd"]
+data <- data[, !names(data) %in% "prizm_social_one"]
+data <- data[, !names(data) %in% "dualband"]
+data <- data[, !names(data) %in% "refurb_new"]
+data <- data[, !names(data) %in% "hnd_webcap"]
+data <- data[, !names(data) %in% "ownrent"]
+data <- data[, !names(data) %in% "dwlltype"]
+data <- data[, !names(data) %in% "infobase"]
+data <- data[, !names(data) %in% "HHstatin"]
+data <- data[, !names(data) %in% "dwllsize"]
+data <- data[, !names(data) %in% "kid0_2"]
+data <- data[, !names(data) %in% "kid3_5"]
+data <- data[, !names(data) %in% "kid6_10"]
+data <- data[, !names(data) %in% "kid11_15"]
+data <- data[, !names(data) %in% "kid16_17"]
+```
+
+
+```{r}
+library(caret)
+
+# Define X and y
+X <- data[, -which(names(data) == "churn")]  # Remove target variable 'churn'
+y <- data$churn  # Target variable
+
+# Perform feature selection using ANOVA (F-test)
+# Use decision tree model 'rpart' for classification, which works well for categorical outcomes
+control <- trainControl(method="cv", number=10)  # 10-fold cross-validation
+
+# Apply feature selection using rpart (decision tree)
+selector <- train(x = X, y = y, method = "rpart", 
+                  trControl = control, 
+                  preProcess = "scale")
+
+# Get feature importance from the model
+importance <- varImp(selector, scale = FALSE)
+
+# Check if the importance has been calculated properly
+if (!is.null(importance$importance)) {
+  # Sort features by importance score and keep the feature names
+  top_features_sorted <- importance$importance[, 1]
+  
+  # Create a data frame with feature names and importance scores
+  top_features <- data.frame(Feature = rownames(importance$importance), Importance = top_features_sorted)
+  
+  # Sort the features by importance (decreasing)
+  top_features_sorted <- top_features[order(top_features$Importance, decreasing = TRUE), ]
+  
+  # Display the top 20 features with names and scores
+  print("Las 20 mejores características ordenadas por influencia:")
+  print(head(top_features_sorted, 20))  # Show the top 20 features
+} else {
+  print("No importance data found. Please check the model.")
+}
+
+
+```
+
+
 
 # **4. Analisis Exploratorio Univariado y Multivariado**
 ## 4.1 Análisis Univariado
@@ -295,14 +400,6 @@ levels(data$area)
 
 # Analizamos la variable "area".La variable es leída como un factor que tiene 19 niveles (categorías).
 
-```{r}
-# Analizamos la variable "creditcd".
-data$creditcd    <- as.factor(data$creditcd)
-levels(data$creditcd)
-```
-
-
-Análisis: (Indica si el cliente posee una tarjeta de crédito.) Se puede observar que tiene 2 niveles (categorías).
 
 ```{r}
 # Analizamos la variable "ethnic"
@@ -313,13 +410,6 @@ levels(data$ethnic)
 Análisis:(Indica el código que representa el grupo étnico al que pertenece el cliente.) Se puede observar que tiene 17 niveles (categorías).
 
 ### **4.2 VARIABLES CUANTITATIVAS**
-```{r}
-# Analizamos la variable "Customer_ID"
-data$Customer_ID   <- as.factor(data$Customer_ID)
-print(data$Customer_ID)
-```
-
-
 ```{r}
 # Analizamos la variable "adults"
 data$adults   <- as.factor(data$adults)
@@ -358,6 +448,7 @@ ggplot(data, aes(x = as.factor(churn), fill = as.factor(churn))) +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
 #### Grafica de torta del Churn
 ```{r}
 data_summary <- data %>%
@@ -373,6 +464,8 @@ ggplot(data_summary, aes(x = "", y = n, fill = as.factor(churn))) +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
+
 #### Gráfico de barras de usuarios por nuevo usuarios
 ```{r}
 # Gráfico de barras
@@ -401,6 +494,7 @@ ggplot(data_summary, aes(x = "", y = n, fill = new_cell)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   labs(title = "Distribución de usuarios por nuevo usuarios", fill = "Nuevo usuario")
 ```
+
 #### Distribución del promedio de llamadas de voz fallidas
 ```{r}
 ggplot(data, aes(x = drop_vce_Mean)) +
@@ -418,7 +512,7 @@ En este diagrama de barras observamos un sesgo hacia la derecha, lo que indica q
 #### Distribución de la cantidad de minutos usados
 ```{r}
 ggplot(data, aes(x = totmou)) +
-  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
+  geom_histogram(binwidth = 1000, fill = "lightblue", color = "black") +
   labs(title = "Distribución de la cantidad de minutos usados",
        x = "Cantidad de minutos usados",
        y = "Frecuencia") +
@@ -431,7 +525,7 @@ Este diagrama de barras muestra el tiempo total en minutos que un cliente ha uti
 #### Distribución de la Cantidad de Total de Llamadas
 ```{r}
 ggplot(data, aes(x = totcalls)) +
-  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
+  geom_histogram(binwidth = 1000, fill = "lightblue", color = "black") +
   labs(title = "Distribución de la Cantidad de Total de Llamadas",
        x = "Cantidad de Total de Llamadas",
        y = "Frecuencia") +
@@ -474,6 +568,67 @@ ggplot(data_summary, aes(x = "", y = n, fill = as.factor(adults))) +
   theme(plot.title = element_text(hjust = 0.5))  # Center the title
 ```
 Se observa que la mayoría de los clientes conviven con 2 adultos, representando el 46.1% del total. Les siguen aquellos que viven con 1 adulto (22.3%), 3 adultos (13.7%), 4 adultos (8.8%), 5 adultos (4.8%) y, finalmente, 6 adultos (4.3%).
+
+
+```{r}
+ggplot(data, aes(x = months)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
+  labs(title = "Distribución del total de meses en el servicio",
+       x = "Número total de meses en el servicio",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+ggplot(data, aes(x = eqpdays)) +
+  geom_histogram(binwidth = 100, fill = "lightblue", color = "black") +
+  labs(title = "Distribución del número de días que el cliente ha tenido su equipo actual.",
+       x = "Número de días que el cliente ha tenido su equipo actual.",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+ggplot(data, aes(x = hnd_price)) +
+  geom_histogram(binwidth = 20, fill = "lightblue", color = "black") +
+  labs(title = "Distribución del precio del telefono.",
+       x = "Precio del telefono",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+ggplot(data, aes(x = mou_Mean)) +
+  geom_histogram(binwidth = 200, fill = "lightblue", color = "black") +
+  labs(title = "Distribución de minutos de uso mensual promedio.",
+       x = "Minutos de uso mensual promedio.",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+ggplot(data, aes(x = totmrc_Mean)) +
+  geom_histogram(binwidth = 10, fill = "lightblue", color = "black") +
+  labs(title = "Distribución del cargo recurrente mensual total promedio.",
+       x = "Cargo recurrente mensual total promedio",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+ggplot(data, aes(x = phones)) +
+  geom_histogram(binwidth = 1, fill = "lightblue", color = "black") +
+  labs(title = "Distribución del numero de telefonos.",
+       x = "Numero de telefonos",
+       y = "Frecuencia") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
 
 # **5. Análisis Bivariado**
 ## Frecuencia de Adultos por Churn
@@ -580,6 +735,170 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = callwait_Mean, fill = as.fac
        fill = "Churn")
 ```
 Se observa que la caja de bigotes para el churn de 0 presenta un sesgo positivo, al igual que la de churn de 1. Ambas distribuciones tienen medianas similares, y la mayoría de los datos se sitúan en el rango de 0.0 a 0.7. Además, no se aprecian diferencias significativas entre las distribuciones de churn y el promedio de llamadas esperadas.
+
+
+```{r}
+# Calculate the IQR and define the outlier bounds
+Q1 <- quantile(data$months, 0.25, na.rm = TRUE)
+Q3 <- quantile(data$months, 0.75, na.rm = TRUE)
+IQR_value <- Q3 - Q1
+
+# Define the lower and upper bounds for outliers
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+# Filter data to exclude outliers
+filtered_data <- data %>%
+  filter(months >= lower_bound & months <= upper_bound)
+
+# Plot without outliers
+ggplot(filtered_data, aes(x = as.factor(churn), y = months, fill = as.factor(churn))) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(floor(min(filtered_data$months)),
+                                  ceiling(max(filtered_data$months)),
+                                  by = 10)) +
+  labs(title = "Número total de meses en el servicio por Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Número total de meses en el servicio",
+       fill = "Churn")
+```
+
+```{r}
+# Calculate the IQR and define the outlier bounds
+Q1 <- quantile(data$eqpdays, 0.25, na.rm = TRUE)
+Q3 <- quantile(data$eqpdays, 0.75, na.rm = TRUE)
+IQR_value <- Q3 - Q1
+
+# Define the lower and upper bounds for outliers
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+# Filter data to exclude outliers
+filtered_data <- data %>%
+  filter(eqpdays >= lower_bound & eqpdays <= upper_bound)
+
+# Plot without outliers
+ggplot(filtered_data, aes(x = as.factor(churn), y = eqpdays, fill = as.factor(churn))) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(floor(min(filtered_data$eqpdays)),
+                                  ceiling(max(filtered_data$eqpdays)),
+                                  by = 100)) +
+  labs(title = "Edad del equipo por Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Edad del equipo",
+       fill = "Churn")
+```
+
+```{r}
+# Calculate the IQR and define the outlier bounds
+Q1 <- quantile(data$hnd_price, 0.25, na.rm = TRUE)
+Q3 <- quantile(data$hnd_price, 0.75, na.rm = TRUE)
+IQR_value <- Q3 - Q1
+
+# Define the lower and upper bounds for outliers
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+# Filter data to exclude outliers
+filtered_data <- data %>%
+  filter(hnd_price >= lower_bound & hnd_price <= upper_bound)
+
+# Plot without outliers
+ggplot(filtered_data, aes(x = as.factor(churn), y = hnd_price, fill = as.factor(churn))) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(floor(min(filtered_data$hnd_price)),
+                                  ceiling(max(filtered_data$hnd_price)),
+                                  by = 100)) +
+  labs(title = "Precio del telefono por Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Precio del telefono",
+       fill = "Churn")
+```
+
+```{r}
+# Calculate the IQR and define the outlier bounds
+Q1 <- quantile(data$mou_Mean, 0.25, na.rm = TRUE)
+Q3 <- quantile(data$mou_Mean, 0.75, na.rm = TRUE)
+IQR_value <- Q3 - Q1
+
+# Define the lower and upper bounds for outliers
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+# Filter data to exclude outliers
+filtered_data <- data %>%
+  filter(mou_Mean >= lower_bound & mou_Mean <= upper_bound)
+
+# Plot without outliers
+ggplot(filtered_data, aes(x = as.factor(churn), y = mou_Mean, fill = as.factor(churn))) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(floor(min(filtered_data$mou_Mean)),
+                                  ceiling(max(filtered_data$mou_Mean)),
+                                  by = 100)) +
+  labs(title = "Minutos de uso mensual promedio por Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Minutos de uso mensual promedio",
+       fill = "Churn")
+```
+
+```{r}
+# Calculate the IQR and define the outlier bounds
+Q1 <- quantile(data$totmrc_Mean, 0.25, na.rm = TRUE)
+Q3 <- quantile(data$totmrc_Mean, 0.75, na.rm = TRUE)
+IQR_value <- Q3 - Q1
+
+# Define the lower and upper bounds for outliers
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+# Filter data to exclude outliers
+filtered_data <- data %>%
+  filter(totmrc_Mean >= lower_bound & totmrc_Mean <= upper_bound)
+
+# Plot without outliers
+ggplot(filtered_data, aes(x = as.factor(churn), y = totmrc_Mean, fill = as.factor(churn))) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(floor(min(filtered_data$totmrc_Mean)),
+                                  ceiling(max(filtered_data$totmrc_Mean)),
+                                  by = 10)) +
+  labs(title = "Cargo recurrente mensual total promedio por Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Cargo recurrente mensual total promedio",
+       fill = "Churn")
+```
+
+```{r}
+# Calculate the IQR and define the outlier bounds
+Q1 <- quantile(data$phones, 0.25, na.rm = TRUE)
+Q3 <- quantile(data$phones, 0.75, na.rm = TRUE)
+IQR_value <- Q3 - Q1
+
+# Define the lower and upper bounds for outliers
+lower_bound <- Q1 - 1.5 * IQR_value
+upper_bound <- Q3 + 1.5 * IQR_value
+
+# Filter data to exclude outliers
+filtered_data <- data %>%
+  filter(phones >= lower_bound & phones <= upper_bound)
+
+# Plot without outliers
+ggplot(filtered_data, aes(x = as.factor(churn), y = phones, fill = as.factor(churn))) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(floor(min(filtered_data$phones)),
+                                  ceiling(max(filtered_data$phones)),
+                                  by = 1)) +
+  labs(title = "Número de telefonos por Churn",
+       x = "Churn (0 = No, 1 = Sí)",
+       y = "Número de telefonos",
+       fill = "Churn")
+```
+
 
 # **6. Análisis Multivariado**
 ```{r}
@@ -713,3 +1032,121 @@ print(resultado_ttest4)
 
 Al analizar churn con el Número medio de llamadas al servicio de atención al cliente tenemos los siguientes resultados: t = 11.522, df = 99824, p-value < 2.2e-16.
 Este resultado sugiere que los clientes que hicieron churn (churn = 1) realizaron un número significativamente mayor de llamadas al servicio de atención al cliente en comparación con los clientes que no hicieron churn (churn = 0). La diferencia es estadísticamente significativa, lo que puede indicar que los clientes que se sienten insatisfechos o tienen problemas frecuentes tienden a llamar más al servicio de atención y tienen una mayor probabilidad de abandonar el servicio.
+
+## Machine Learning
+
+```{r}
+# Selecting specific columns
+selected_columns <- data %>%
+  select(phones, totmrc_Mean, mou_Mean, hnd_price, eqpdays, months, 
+         adults, ethnic, totcalls, totmou, drop_vce_Mean, new_cell, churn)
+head(selected_columns)
+```
+```{r}
+# Define target and predictor variables
+target <- selected_columns$churn
+predictors <- selected_columns %>%
+  select(-churn)  # Exclude target variable from predictors
+
+# Ensure that categorical variables like 'ethnic' are factors
+predictors$ethnic <- as.factor(predictors$ethnic)
+
+# One-hot encode categorical variables and combine with numeric columns
+dummy_vars <- dummyVars(" ~ .", data = predictors)
+encoded_data <- predict(dummy_vars, newdata = predictors) %>%
+  as.data.frame() %>%
+  mutate(churn = target)  # Add target variable back
+
+# View the final dataset
+head(encoded_data)
+
+```
+
+```{r}
+# Assuming 'encoded_data' is the dataset with the encoded categorical variables
+target <- encoded_data$churn  # target variable (churn)
+predictors <- encoded_data %>%
+  select(-churn)  # remove the target variable from the predictors
+
+# Convert predictors and target into matrix format
+train_x <- as.matrix(predictors)
+train_y <- as.numeric(target)  # Convert target to numeric (0 or 1)
+```
+
+
+```{r}
+# Define a grid of hyperparameters to tune
+tune_grid <- expand.grid(
+  nrounds = c(50, 100, 150),        # Number of boosting rounds (trees)
+  max_depth = c(3, 6, 10),          # Depth of trees
+  eta = c(0.01, 0.1, 0.3),         # Learning rate
+  gamma = c(0, 1),                  # Regularization parameter
+  colsample_bytree = c(0.6, 0.8),   # Fraction of features used for each tree
+  min_child_weight = c(1, 5),       # Minimum sum of instance weight (used for pruning)
+  subsample = c(0.6, 0.8)           # Fraction of samples used for each tree
+)
+
+```
+
+
+```{r}
+# Set up cross-validation control
+train_control <- trainControl(
+  method = "cv",         # Cross-validation
+  number = 3,            # 5-fold cross-validation
+  verboseIter = TRUE     # Show progress of the tuning process
+)
+```
+
+
+```{r}
+# Use a random subset of the data (e.g., 10% of the data)
+set.seed(123)
+subset_data <- encoded_data[sample(1:nrow(encoded_data), size = 0.01 * nrow(encoded_data)), ]
+
+# Perform tuning on the subset of data
+xgb_tune <- train(
+  churn ~ .,               # Formula: predict churn based on all other variables
+  data = subset_data,      # Use the subset data
+  method = "xgbTree",      # XGBoost method
+  trControl = train_control,  # Cross-validation setup
+  tuneGrid = tune_grid      # Hyperparameter grid
+)
+
+```
+
+
+
+```{r}
+# Convert the dataset into an XGBoost-compatible format
+dtrain <- xgb.DMatrix(data = train_x, label = train_y)
+
+# Set parameters for binary classification
+params <- list(
+  objective = "binary:logistic",  # Binary classification
+  eval_metric = "error",          # Metric to evaluate model (classification error)
+  max_depth = 10,                  # Max depth of trees
+  eta = 0.01,                      # Learning rate
+  nthread = 2,                    # Number of threads to use
+  gamma = 1,
+  subsample = 0.6,                # Fraction of samples used per tree
+  colsample_bytree = 0.6          # Fraction of features used per tree
+)
+
+# Train the model
+model <- xgb.train(params, dtrain, nrounds = 100)
+```
+
+
+```{r}
+# Make predictions on the training data (or new data)
+predictions <- predict(model, train_x)
+
+# Convert predictions to binary (0 or 1)
+predictions_binary <- ifelse(predictions > 0.5, 1, 0)
+
+# Evaluate the model performance
+confusionMatrix(factor(predictions_binary), factor(train_y))
+
+```
+
