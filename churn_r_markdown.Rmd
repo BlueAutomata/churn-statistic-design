@@ -20,7 +20,11 @@ Este conjunto de datos consta de 100 variables y aproximadamente 100.000 registr
 
 La variable objetivo es la **rotación** (churn), que explica si el cliente cambiará de proveedor o no.
 
-Como objetivo inicial se quiere hacer uso de este conjunto de datos para crear un modelo Estadistico ó de Machine Learning para predecir los clientes que abandonarán o no el servicio, en función de las distintas variables disponibles.
+El sector de las telecomunicaciones es un mercado muy competitivo en el cual las compañías de telefonía celular generan atractivas campañas de publicidad que den valor agregado al cliente para lograr su estadía a largo plazo. Asimismo, este servicio demanda un considerable cuidado con los factores intangibles que pueden ocasionar que un usuario busque realizar portabilidades numéricas o cancelaciones definitivas. Por tal motivo, las variables que se consideran en el modelo deben reflejar los aspectos más importantes que puedan ser un factor de decisión para el cliente.  
+
+Por otra parte, la segmentación del mercado es importante para la retención y rotación. Si bien el precio es primordial y puede generar una rápida y masiva vinculación de usuarios, la calidad dada por las compañías durante la prestación del servicio es indispensable para evitar portabilidades numéricas prematuras. Por esta razón, se debe entender que algunas variables serán de mayor importancia para unos clientes que para otros.  
+
+Así bien, con este modelo se pretende analizar y entender los factores decisivos para el cliente, a fin de predecir su comportamiento comercial y permitir a los lideres del negocio tomar decisiones enfocadas en las variables que le dan este valor agregado a su servicio y que impactan en la permanencia de su mercado objetivo. 
 
 ## **Objetivos.**
 
@@ -109,7 +113,7 @@ str(data)
 
 ## **2.2. Resumen estadístico básico**
 
-```{r}
+```{r include=FALSE}
 # Analizamos el Resumen Estadístico Básico. (min, max, media, mediana)
 summary(data)
 ```
@@ -127,7 +131,7 @@ attr(data, "problems")
 problems(data)
 ```
 
-```{r}
+```{r include=FALSE}
 # Verificamos la duplicidad de la data. (variables)
 data_duplicada <- duplicated(names(data))
 print(data_duplicada)
@@ -152,7 +156,7 @@ print(total_valores_faltantes)
 
 
 
-```{r}
+```{r include=FALSE}
 # Identificamos los dominios de cada columna.
 colnames(data)
 ```
@@ -332,7 +336,7 @@ data <- data[, !names(data) %in% "kid16_17"]
 ```
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 library(caret)
 
 # Define X and y
@@ -411,7 +415,7 @@ levels(data$ethnic)
 Análisis:(Indica el código que representa el grupo étnico al que pertenece el cliente.) Se puede observar que tiene 17 niveles (categorías).
 
 ### **4.2 VARIABLES CUANTITATIVAS**
-```{r}
+```{r include=FALSE}
 # Analizamos la variable "adults"
 data$adults   <- as.factor(data$adults)
 print(data$adults)
@@ -720,6 +724,7 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = unan_vce_Mean, fill = as.fac
 
 ```
 
+
 La observación de que ambas cajas de bigotes (box plots) para los estados de churn (0 y 1) presentan un sesgo positivo y una mediana similar, con la mayoría de los datos en el rango de 5 a 30, sugiere que el promedio de llamadas no contestadas podría no ser un factor relevante para explicar el abandono del servicio. Si no se aprecian diferencias significativas en la distribución entre los clientes que permanecen (churn = 0) y los que abandonan (churn = 1), es probable que el promedio de llamadas no contestadas tenga una baja influencia en la decisión de abandono.
 
 ## Caja de bigotes de Promedio de llamadas esperadas por Churn
@@ -749,6 +754,7 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = callwait_Mean, fill = as.fac
        y = "Promedio de llamadas esperadas",
        fill = "Churn")
 ```
+
 
 La observación de que ambas cajas de bigotes para los estados de churn (0 y 1) muestran un sesgo positivo, con medianas similares y la mayoría de los datos en el rango de 0.0 a 0.7 en el promedio de llamadas esperadas, sugiere que esta variable no es un factor diferenciador entre clientes que abandonan y aquellos que permanecen. La falta de diferencias significativas entre las distribuciones para churn indica que el promedio de llamadas esperadas probablemente no influye en la decisión de abandono.
 
@@ -1105,7 +1111,7 @@ train_y <- as.numeric(target)  # Convert target to numeric (0 or 1)
 
 ## **7.4  Probar distintos modelos de clasificación**
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, echo=TRUE, results='hide'}
 # Set a seed for reproducibility
 set.seed(123)
 
