@@ -67,7 +67,7 @@ invisible(lapply(packages, install_if_missing))
 
 ```
 
-```{r, echo=FALSE}
+```{r warning=FALSE, include=FALSE}
 # Vinculamos las librerías con funciones y herramientas necesarias para el despliegue de la data.
 library(ggplot2) #Permite crear gráficos personalizados.
 library(dplyr) #Permite manipular y analizar datos de forma eficiente.
@@ -81,7 +81,7 @@ library(caret)
 
 ```
 
-```{r}
+```{r include=FALSE}
 data <- read_csv("telecom_customer_churn.csv")
 ```
 # **2. Análisis Preliminar de los Datos**
@@ -139,7 +139,7 @@ duplicate_names <- names(data)[data_duplicada]
 print(duplicate_names)
 ```
 
-```{r}
+```{r include=FALSE}
 # Identificamos valores faltantes (NA) en nuestro Data Frame "data"
 valores_faltantes <- is.na(data)
 print(valores_faltantes)
@@ -306,6 +306,7 @@ data$HHstatin <- Mode(data$HHstatin)
 ```
 
 
+## **Remover variables con valores unicos**
 
 ```{r}
 # Remove the 'Customer_ID' column from the dataset
@@ -1052,7 +1053,8 @@ print(resultado_ttest4)
 Al analizar churn con el Número medio de llamadas al servicio de atención al cliente tenemos los siguientes resultados: t = 11.522, df = 99824, p-value < 2.2e-16.
 Este resultado sugiere que los clientes que hicieron churn (churn = 1) realizaron un número significativamente mayor de llamadas al servicio de atención al cliente en comparación con los clientes que no hicieron churn (churn = 0). La diferencia es estadísticamente significativa, lo que puede indicar que los clientes que se sienten insatisfechos o tienen problemas frecuentes tienden a llamar más al servicio de atención y tienen una mayor probabilidad de abandonar el servicio.
 
-## Machine Learning
+# **7. Modelamiento**
+## **7.1 Selecionar las colmunas para entrenar el modelo**
 
 ```{r}
 # Selecting specific columns
@@ -1061,6 +1063,9 @@ selected_columns <- data %>%
          adults, ethnic, totcalls, totmou, drop_vce_Mean, new_cell, churn)
 head(selected_columns)
 ```
+
+## **7.2 Convertir datos categóricos en variables numéricas**
+
 ```{r}
 # Define target and predictor variables
 target <- selected_columns$churn
@@ -1070,7 +1075,10 @@ predictors <- selected_columns %>%
 # Ensure that categorical variables like 'ethnic' are factors
 predictors$ethnic <- as.factor(predictors$ethnic)
 
-# One-hot encode categorical variables and combine with numeric columns
+# Perform label encoding for the 'ethnic' variable (convert factor to integer)
+predictors$ethnic <- as.numeric(predictors$ethnic)
+
+# One-hot encode other categorical variables, if needed (optional)
 dummy_vars <- dummyVars(" ~ .", data = predictors)
 encoded_data <- predict(dummy_vars, newdata = predictors) %>%
   as.data.frame() %>%
@@ -1079,7 +1087,10 @@ encoded_data <- predict(dummy_vars, newdata = predictors) %>%
 # View the final dataset
 head(encoded_data)
 
+
 ```
+
+## **7.3 Guardar los datos para usarlos como conjunto de entrenamiento**
 
 ```{r}
 # Assuming 'encoded_data' is the dataset with the encoded categorical variables
@@ -1092,9 +1103,98 @@ train_x <- as.matrix(predictors)
 train_y <- as.numeric(target)  # Convert target to numeric (0 or 1)
 ```
 
+## **7.4  Probar distintos modelos de clasificación**
+
+```{r message=FALSE, warning=FALSE}
+# Set a seed for reproducibility
+set.seed(123)
+
+# Calculate the sample size (1% of the original data)
+sample_size <- floor(0.05 * nrow(train_x))  # 1% of the number of rows
+
+# Sample the rows from both train_x and train_y
+sample_indices <- sample(nrow(train_x), size = sample_size)
+
+# Subset the data
+train_x_sampled <- train_x[sample_indices, ]
+train_y_sampled <- train_y[sample_indices]
+
+# Optionally, if you want to convert train_y to numeric (if not done already)
+train_y_sampled <- as.numeric(train_y_sampled)  # Ensures it's numeric (0 or 1)
+
+
+
+# Ensure valid class levels for R variable names
+train_y_sampled <- factor(train_y_sampled)
+levels(train_y_sampled) <- make.names(levels(train_y_sampled))  # Make class names valid
+
+# Define Training Control with class probabilities enabled
+train_control <- trainControl(
+  method = "cv",           # Cross-validation
+  number = 10,              # Number of folds
+  savePredictions = "final",
+  classProbs = TRUE,       # Request class probabilities for ROC
+  summaryFunction = twoClassSummary  # Use ROC, Sensitivity, Specificity for binary classification
+)
+
+# Define Models to Compare
+model_list <- c("glm", "rf", "gbm", "svmRadial", "nnet", "xgbTree")
+
+# Train Each Model Using Matrix Input
+model_results <- list()
+for (model in model_list) {
+  set.seed(123)  # Ensure reproducibility
+  
+  # Model-specific adjustments for class probabilities
+  if (model == "xgbTree") {
+    # Ensure binary classification with probabilities
+    model_results[[model]] <- train(
+      x = train_x_sampled,
+      y = train_y_sampled,
+      method = model,
+      trControl = train_control,
+      metric = "ROC",
+      tuneLength = 5,
+      objective = "binary:logistic"  # Ensure binary classification with class probabilities
+    )
+  } else if (model == "nnet") {
+    # Set linout = FALSE for nnet to output probabilities
+    model_results[[model]] <- train(
+      x = train_x_sampled,
+      y = train_y_sampled,
+      method = model,
+      trControl = train_control,
+      metric = "ROC",
+      linout = FALSE  # Ensures class probabilities are output
+    )
+  } else {
+    model_results[[model]] <- train(
+      x = train_x_sampled,
+      y = train_y_sampled,
+      method = model,
+      trControl = train_control,
+      metric = "ROC"
+    )
+  }
+}
+
+# Summarize Results
+resamples_results <- resamples(model_results)
+summary(resamples_results)
+
+# Visualize Results
+bwplot(resamples_results, metric = "ROC")
+
+# Best Model Based on ROC
+best_model_name <- names(which.max(sapply(model_results, function(x) max(x$results$ROC))))
+best_model <- model_results[[best_model_name]]
+cat("Best Model: ", best_model_name, "\n")
+print(best_model)
+```
+
+## **7.5 Configuración de los parámetros para la optimización de un modelo XGBoost**
 
 ```{r}
-# Define a grid of hyperparameters to tune
 tune_grid <- expand.grid(
   nrounds = c(50, 100, 150),        # Number of boosting rounds (trees)
   max_depth = c(3, 6, 10),          # Depth of trees
@@ -1104,21 +1204,24 @@ tune_grid <- expand.grid(
   min_child_weight = c(1, 5),       # Minimum sum of instance weight (used for pruning)
   subsample = c(0.6, 0.8)           # Fraction of samples used for each tree
 )
-
 ```
 
+
+## **7.6 Configurar el control de validación cruzada.**
 
 ```{r}
 # Set up cross-validation control
 train_control <- trainControl(
   method = "cv",         # Cross-validation
-  number = 3,            # 5-fold cross-validation
+  number = 10,            # 5-fold cross-validation
   verboseIter = TRUE     # Show progress of the tuning process
 )
 ```
 
 
-```{r warning=FALSE}
+## **7.7 Encontrar los mejores hiperparámetros**
+
+```{r warning=FALSE, include=FALSE}
 # Use a random subset of the data (e.g., 10% of the data)
 set.seed(123)
 subset_data <- encoded_data[sample(1:nrow(encoded_data), size = 0.01 * nrow(encoded_data)), ]
@@ -1127,14 +1230,20 @@ subset_data <- encoded_data[sample(1:nrow(encoded_data), size = 0.01 * nrow(enco
 xgb_tune <- train(
   churn ~ .,               # Formula: predict churn based on all other variables
   data = subset_data,      # Use the subset data
-  method = "xgbTree",      # XGBoost method
+  method = "xgbTree",          # Generalized Boosted Regression Model (GBM)
   trControl = train_control,  # Cross-validation setup
-  tuneGrid = tune_grid      # Hyperparameter grid
+  tuneGrid = tune_grid      # Hyperparameter grid for GBM
 )
 
 ```
 
+## **7.8 Imprimir los hiperparámetros**
 
+```{r}
+print(xgb_tune$bestTune)
+```
+
+## **7.9 Entrenar el modelo utilizando los hiperparámetros óptimos**
 
 ```{r}
 # Convert the dataset into an XGBoost-compatible format
@@ -1144,18 +1253,36 @@ dtrain <- xgb.DMatrix(data = train_x, label = train_y)
 params <- list(
   objective = "binary:logistic",  # Binary classification
   eval_metric = "error",          # Metric to evaluate model (classification error)
-  max_depth = 10,                  # Max depth of trees
-  eta = 0.01,                      # Learning rate
-  nthread = 2,                    # Number of threads to use
-  gamma = 1,
-  subsample = 0.6,                # Fraction of samples used per tree
-  colsample_bytree = 0.6          # Fraction of features used per tree
+  max_depth = xgb_tune$bestTune$max_depth,                  # Max depth of trees
+  eta = xgb_tune$bestTune$eta,                      # Learning rate
+  nthread = 3,                    # Number of threads to use
+  gamma = xgb_tune$bestTune$gamma,
+  subsample = xgb_tune$bestTune$subsample,                # Fraction of samples used per tree
+  colsample_bytree = xgb_tune$bestTune$colsample_bytree          # Fraction of features used per tree
 )
 
 # Train the model
-model <- xgb.train(params, dtrain, nrounds = 100)
+model <- xgb.train(params, dtrain, nrounds = xgb_tune$bestTune$nrounds)
 ```
 
+
+
+```{r eval=FALSE, include=FALSE}
+# Set seed for reproducibility
+set.seed(123)
+
+# Create training and testing indices
+train_indices <- createDataPartition(train_y, p = 0.3, list = FALSE)
+
+# Split the data into training and testing sets
+train_x_split <- train_x[train_indices, ]  # Training predictors
+train_y_split <- train_y[train_indices]    # Training target
+test_x_split <- train_x[-train_indices, ]  # Testing predictors
+test_y_split <- train_y[-train_indices]    # Testing target
+
+```
+
+## **7.10 Evaluar los resultados**
 
 ```{r}
 # Make predictions on the training data (or new data)
