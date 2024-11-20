@@ -1265,23 +1265,6 @@ params <- list(
 model <- xgb.train(params, dtrain, nrounds = xgb_tune$bestTune$nrounds)
 ```
 
-
-
-```{r eval=FALSE, include=FALSE}
-# Set seed for reproducibility
-set.seed(123)
-
-# Create training and testing indices
-train_indices <- createDataPartition(train_y, p = 0.3, list = FALSE)
-
-# Split the data into training and testing sets
-train_x_split <- train_x[train_indices, ]  # Training predictors
-train_y_split <- train_y[train_indices]    # Training target
-test_x_split <- train_x[-train_indices, ]  # Testing predictors
-test_y_split <- train_y[-train_indices]    # Testing target
-
-```
-
 ## **7.10 Evaluar los resultados**
 
 ```{r}
