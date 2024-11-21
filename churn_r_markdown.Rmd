@@ -1,8 +1,11 @@
 ---
 title: "Churn"
-author: "Eva Manuela Roncancio Ruiz, Mayerlis Lissett Moya Villafane, Guillermo Luigui Ubaldo Nieto Angarita."
+author: Eva Manuela Roncancio Ruiz, Mayerlis Lissett Moya Villafane, Guillermo Luigui
+  Ubaldo Nieto Angarita.
 date: "2024-11-07"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,10 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # **PREDICCIÓN DE LA PÉRDIDA DE CLIENTES DE TELECOMUNICACIONES**
 
-***Eva Manuela Roncancio Ruiz, Mayerlis Lissett Moya Villafane
-, Guillermo Luigui Ubaldo Nieto Angarita.***
+***Eva Manuela Roncancio Ruiz, \ Mayerlis Lissett Moya Villafane
+, \ Guillermo Luigui Ubaldo Nieto Angarita.***
 
-## **Contexto.**
+## **1. Contexto.**
 
 Este conjunto de datos consta de 100 variables y aproximadamente 100.000 registros. Se presentan distintas variables que explican los atributos propios del sector de las telecomunicaciones y diversos factores esenciales para atender las necesidades de sus clientes.
 
@@ -26,12 +29,12 @@ Por otra parte, la segmentación del mercado es importante para la retención y 
 
 Así bien, con este modelo se pretende analizar y entender los factores decisivos para el cliente, a fin de predecir su comportamiento comercial y permitir a los lideres del negocio tomar decisiones enfocadas en las variables que le dan este valor agregado a su servicio y que impactan en la permanencia de su mercado objetivo. 
 
-## **Objetivos.**
+## **2. Objetivos.**
 
-### ***Objetivo General***
+### ***2.1 Objetivo General***
 Crear un modelo de Machine Learning para predecir los clientes que abandonarán los servicios de telecomunicaciones en función de las variables objeto de estudio seleccionadas en este proyecto.
 
-### ***Objetivos Especificos***
+### ***2.2 Objetivos Especificos***
 
 1.   Presentar un EDA Univariado y Multivariado a profundidad.
 2.   Hacer uso de pruebas de Algoritmos para la comparación del rendimiento.
@@ -39,11 +42,12 @@ Crear un modelo de Machine Learning para predecir los clientes que abandonarán 
 4.   Presentar el modelo más optimo para la predicción del churn en el sector de las telecomunicaciones junto con el analisis de aplicabilidad.
 
 
-## **Variables Objeto.**
+## **3. Variables Objeto.**
 
-### ***Variable Dependiente***
+### ***3.1 Variable Dependiente***
 Churn: Reporte de los casos de abandono (con evolución entre 31 a 60 días después de la fecha de observación)
-### ***Variables Independientes***
+
+### ***3.2 Variables Independientes***
 Seleccioandas en la Limpieza y Transformación de los Datos
 
 ---
@@ -52,7 +56,7 @@ Seleccioandas en la Limpieza y Transformación de los Datos
 
 https://docs.google.com/spreadsheets/d/1LVOgqnhx6SAmZuKD8iO3UyXzyE4Q5ctcPZ7sIxF4muA/edit?usp=sharing[texto del vínculo](https://)
 
-# **1. Cargue de los Datos (paquetes, librerías, data)**
+## **4. Cargue de los Datos (paquetes, librerías, data)**
 A continuación, se presenta el código desarrollado para la recolección, cargue, preparación y exploración de los datos.
 
 
@@ -88,9 +92,9 @@ library(caret)
 ```{r include=FALSE}
 data <- read_csv("telecom_customer_churn.csv")
 ```
-# **2. Análisis Preliminar de los Datos**
+## **5. Análisis Preliminar de los Datos**
 
-##**2.1. Inspeción de Datos Basicos**
+### **5.1. Inspeción de Datos Basicos**
 
 ```{r}
 # Corroboramos la cantidad de filas (registros), columnas (varibles).
@@ -111,15 +115,15 @@ tail(data)
 str(data)
 ```
 
-## **2.2. Resumen estadístico básico**
+### **5.2. Resumen estadístico básico**
 
 ```{r include=FALSE}
 # Analizamos el Resumen Estadístico Básico. (min, max, media, mediana)
 summary(data)
 ```
 
-# **3. Gestión de valores duplicados y faltantes**
-## **3.1 Manejo de duplicaciones**
+## **6. Gestión de valores duplicados y faltantes**
+### **6.1 Manejo de duplicaciones**
 
 ```{r}
 # Revisamos el problema que aparece en el codigo, el cual esta relacionado con la lectura de las librerias.
@@ -160,7 +164,7 @@ print(total_valores_faltantes)
 # Identificamos los dominios de cada columna.
 colnames(data)
 ```
-## **3.2 Gestión de valores faltantes**
+### **6.2 Gestión de valores faltantes**
 
 ```{r}
 data$rev_Mean <- ifelse(is.na(data$rev_Mean),
@@ -310,7 +314,7 @@ data$HHstatin <- Mode(data$HHstatin)
 ```
 
 
-## **Remover variables con valores unicos**
+### **6.3 Remover variables con valores unicos**
 
 ```{r}
 # Remove the 'Customer_ID' column from the dataset
@@ -378,8 +382,8 @@ if (!is.null(importance$importance)) {
 
 
 
-# **4. Analisis Exploratorio Univariado y Multivariado**
-## 4.1 Análisis Univariado
+## **7. Analisis Exploratorio Univariado y Multivariado**
+### **7.1 Análisis Univariado**
 ```{r}
 # Analizamos la variable "new_cell". La variable contiene 3 niveles (categorias). Un factor se puede leer como una variable categórica en R.
 data$new_cell <- as.factor(data$new_cell)
@@ -403,7 +407,7 @@ data$area   <- as.factor(data$area)
 levels(data$area)
 ```
 
-# Analizamos la variable "area".La variable es leída como un factor que tiene 19 niveles (categorías).
+Analizamos la variable "area".La variable es leída como un factor que tiene 19 niveles (categorías).
 
 
 ```{r}
@@ -414,14 +418,14 @@ levels(data$ethnic)
 
 Análisis:(Indica el código que representa el grupo étnico al que pertenece el cliente.) Se puede observar que tiene 17 niveles (categorías).
 
-### **4.2 VARIABLES CUANTITATIVAS**
+#### **7.1.1 VARIABLES CUANTITATIVAS**
 ```{r include=FALSE}
 # Analizamos la variable "adults"
 data$adults   <- as.factor(data$adults)
 print(data$adults)
 ```
 
-### **4.3 TABLAS DE FRECUENCIA Y AGRUPACIÓN DE VARIABLES**
+#### **7.1.2 TABLAS DE FRECUENCIA Y AGRUPACIÓN DE VARIABLES**
 ```{r}
 # AGRUPACIONES
 resultado_churn <- data %>%
@@ -440,22 +444,22 @@ Los clientes que no abandonaron el servicio (0 = No) tienen un ingreso mensual p
 Los clientes que sí abandonaron el servicio (1 = Yes) tienen un ingreso mensual promedio de 58.2 y un promedio mensual de llamadas de 170 llamadas al mes.
 
 
-### **4.4 Graficas**
-#### Gráfico de barras  del churn
+#### **7.1.3 Gráfico de barras  del churn**
 ```{r}
 # Visualización: Diagrama de barras para CHURN
 ggplot(data, aes(x = as.factor(churn), fill = as.factor(churn))) +
   geom_bar(position = "dodge") +
-  labs(title = "Distribución del Churn",
-       x = "Churn (0 = No, 1 = Sí)",
+  labs(title = "Distribucion del Churn",
+       x = "Churn (0 = No, 1 = Si)",
        y = "Frecuencia",
        fill = "Churn") +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_brewer(palette = "Set2")
 ```
 
 
-#### Grafica de torta del Churn
+#### **7.1.4 Grafica de torta del Churn**
 ```{r}
 data_summary <- data %>%
   count(churn) %>%
@@ -466,29 +470,47 @@ ggplot(data_summary, aes(x = "", y = n, fill = as.factor(churn))) +
   coord_polar("y") +
   geom_text(aes(label = paste0(round(percentage, 1), "%")),
             position = position_stack(vjust = 0.5)) +
-  labs(title = "Grafica de torta del Churn", x ="Churn (0 = No, 1 = Sí)", fill = "Churn") +
+  labs(
+    title = "Grafica de torta del Churn",
+    x = NULL,  # Remove x-axis label
+    y = NULL,  # Remove y-axis label
+    fill = "Churn"
+  ) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text = element_blank(),  # Remove axis text
+    axis.ticks = element_blank(),  # Remove axis ticks
+    panel.grid = element_blank()  # Remove grid lines
+  ) +
+  scale_fill_brewer(palette = "Set2")
+
 ```
 
 Dado el contexto de competencia en el sector de telecomunicaciones y la importancia de retener a los clientes, la tasa de abandono del 49.56% de los 100,000 clientes (49,562 usuarios) es un indicador crucial que refleja áreas de mejora en la satisfacción y fidelización del cliente. Este índice de churn sugiere que casi la mitad de los clientes encuentra suficiente motivación para cambiar de proveedor o cancelar el servicio, lo que representa una considerable pérdida de ingresos y una señal de posibles deficiencias en la percepción de valor agregado.
 
 
-#### Gráfico de barras de usuarios por nuevo usuarios
+#### **7.1.5 Gráfico de barras de usuarios por nuevo usuarios**
 ```{r}
-# Gráfico de barras
 ggplot(data, aes(x = new_cell, fill = new_cell)) +
   geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5) +  # Add count labels
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  labs(title = "Distribución de usuarios por nuevo usuarios", fill = "Nuevo usuario")
+  labs(
+    title = "Distribucion de usuarios por nuevo usuario",
+    x = "Nuevo usuario",
+    y = "Cantidad de usuarios",
+    fill = "Nuevo usuario"
+  ) +
+  scale_fill_brewer(palette = "Set2")
 ```
 
 
 En este diagrama de Barras podemos observar 3 niveles (categorías) que corresponden a N, U y Y. Podemos observar que la frecuencia más alta radica en usuarios demarcados en el grupo U, con más de 50.000 usuarios registrados. Y el grupo con menores usuarios registrados es el N con menos de 20000 registros. El comportamiento de cambio de número entre los usuarios proporciona información importante sobre el manejo de datos, la experiencia del cliente y las razones potenciales de abandono en el contexto de telecomunicaciones.
 
 
-#### Distribución de usuarios por nuevo usuarios
+#### **7.1.6 Distribución de usuarios por nuevo usuarios**
 ```{r}
 data_summary <- data %>%
   count(new_cell) %>%
@@ -498,59 +520,75 @@ data_summary <- data %>%
 ggplot(data_summary, aes(x = "", y = n, fill = new_cell)) +
   geom_bar(stat = "identity", width = 1) +
   coord_polar("y") +
+  labs(
+    title = "Distribucion de usuarios por nuevo usuarios",
+    x = NULL,  # Remove x-axis label
+    y = NULL,  # Remove y-axis label
+    fill = "Nuevo usuario"
+  ) +
   geom_text(aes(label = label), position = position_stack(vjust = 0.5)) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  labs(title = "Distribución de usuarios por nuevo usuarios", fill = "Nuevo usuario")
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text = element_blank(),  # Remove axis text
+    axis.ticks = element_blank(),  # Remove axis ticks
+    panel.grid = element_blank()  # Remove grid lines
+  ) +
+  scale_fill_brewer(palette = "Set2")
 ```
 
 
+Este gráfico de torta representa tres niveles de la variable "nuevo usuario", que refleja qué tan reciente es su incorporación a la telefonía móvil: **N**, **U**, y **Y**. El grupo **U** concentra la mayoría de los usuarios, con una distribución del **66.9%**, seguido por el grupo **Y**, que representa el **19.3%**, y finalmente el grupo **N**, que constituye el **13.8%**, siendo el más pequeño. Este análisis permite comprender la antigüedad de los usuarios en el servicio y su distribución por niveles.
 
-#### Distribución del promedio de llamadas de voz fallidas
+
+#### **7.1.7  Distribución del promedio de llamadas de voz fallidas**
 ```{r}
 ggplot(data, aes(x = drop_vce_Mean)) +
   geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
-  labs(title = "Distribución del promedio de llamadas de voz fallidas",
+  labs(title = "Distribucion del promedio de llamadas de voz fallidas",
        x = "Llamadas de voz fallidas",
        y = "Frecuencia") +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
-
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_brewer(palette = "Set2")
 ```
+
 
 El sesgo a la derecha en el diagrama de barras, que muestra una concentración de datos en valores bajos de fallas en llamadas, es una señal positiva sobre la calidad del servicio de telecomunicaciones, ya que indica que la mayoría de los usuarios experimenta pocas o ninguna llamada fallida. La concentración de datos en valores bajos sugiere que la red es confiable, y que la infraestructura técnica está funcionando bien para la mayoría de los usuarios. Esto ayuda a mejorar la percepción de calidad y reduce la probabilidad de abandono, ya que la experiencia de llamada es consistente.
 
 
-#### Distribución de la cantidad de minutos usados
+#### **7.1.8  Distribución de la cantidad de minutos usados**
 ```{r}
 ggplot(data, aes(x = totmou)) +
   geom_histogram(binwidth = 1000, fill = "lightblue", color = "black") +
-  labs(title = "Distribución de la cantidad de minutos usados",
+  labs(title = "Distribucion de la cantidad de minutos usados",
        x = "Cantidad de minutos usados",
        y = "Frecuencia") +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_brewer(palette = "Set2")
 ```
 
 Este diagrama de barras muestra el tiempo total en minutos que un cliente ha utilizado el servicio en relación con la cantidad de llamadas gestionadas. La gráfica revela un sesgo negativo hacia la derecha, lo que indica que la mayor parte de los datos se concentra en los valores más bajos a la izquierda. La mayoría de los clientes realiza llamadas de corta duración, lo cual podría indicar que los usuarios tienden a preferir comunicaciones rápidas, tal vez para tareas específicas y consultas breves. Esto puede sugerir que el servicio es utilizado principalmente para interacciones puntuales, en lugar de largas conversaciones.
 
 
-#### Distribución de la Cantidad de Total de Llamadas
+#### **7.1.9 Distribución de la Cantidad de Total de Llamadas**
 ```{r}
 ggplot(data, aes(x = totcalls)) +
   geom_histogram(binwidth = 1000, fill = "lightblue", color = "black") +
-  labs(title = "Distribución de la Cantidad de Total de Llamadas",
+  labs(title = "Distribucion de la Cantidad de Total de Llamadas",
        x = "Cantidad de Total de Llamadas",
        y = "Frecuencia") +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_brewer(palette = "Set2")
 ```
 
 
 Este diagrama de barras muestra la cantidad total de llamadas realizadas por el cliente durante toda su relación con la compañía. La distribución negativa hacia la derecha en este diagrama, con la mayoría de los clientes realizando menos de 25,000 llamadas, junto con la presencia de valores atípicos que llegan hasta las 75,000 llamadas o más sugiere que la mayoría de los clientes tiene un uso moderado del servicio. Esto es típico de una base de clientes compuesta principalmente por usuarios promedio o de bajo consumo, lo que puede ser característico de clientes residenciales o de aquellos que prefieren otros medios de comunicación.
 
 
-#### Grafica de barras de la etnicidad
+#### **7.1.10 Grafica de barras de la etnicidad**
 
 ```{r}
 ggplot(data, aes(x=as.factor(ethnic), fill=as.factor(ethnic) )) +
@@ -564,8 +602,7 @@ Se observa que los tres grupos étnicos más frecuentes son el grupo N, seguido 
 La distribución de estos tres grupos étnicos principales (N, H y S) en el análisis de clientes puede tener varias implicaciones para la compañía, especialmente en la personalización de servicios y en las estrategias de marketing y retención. La identificación de los grupos étnicos más frecuentes permite personalizar servicios y ofertas que puedan resonar mejor con cada grupo. Esto puede incluir campañas de marketing culturalmente relevantes, la incorporación de beneficios específicos que respondan a preferencias o necesidades particulares, o la adaptación de la atención al cliente para reflejar prácticas y valores de cada grupo.
 
 
-
-#### Distribución de Número de Adultos
+#### **7.1.11 Distribución de Número de Adultos**
 
 ```{r}
 # Calculate the counts and percentages
@@ -579,85 +616,159 @@ ggplot(data_summary, aes(x = "", y = n, fill = as.factor(adults))) +
   coord_polar("y") +
   geom_text(aes(label = paste0(round(percentage, 1), "%")),
             position = position_stack(vjust = 0.5)) +
-  labs(title = "Distribución de Número de Adultos", fill = "Número de Adultos") +
+  labs(title = "Distribucion de Numero de Adultos",
+       x = NULL,
+       y = NULL,
+       fill = "Numero de Adultos") +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))  # Center the title
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text = element_blank(),  # Remove axis text
+    axis.ticks = element_blank(),  # Remove axis ticks
+    panel.grid = element_blank()  # Remove grid lines
+  ) +
+  scale_fill_brewer(palette = "Set2")
 ```
-Se observa que la mayoría de los clientes conviven con 2 adultos, representando el 46.1% del total. Les siguen aquellos que viven con 1 adulto (22.3%), 3 adultos (13.7%), 4 adultos (8.8%), 5 adultos (4.8%) y, finalmente, 6 adultos (4.3%).
 
+
+La variable "número de adultos" representa la cantidad de personas adultas que viven en el hogar del cliente. Este gráfico muestra la distribución porcentual de esta variable, donde los hogares con **dos adultos** son mayoría con un **46.1%**, seguidos por los hogares con **un adulto** con un **22.3%**, luego **tres adultos** con un **13.7%**, **cuatro adultos** con un **8.8%**, **cinco adultos** con un **4.8%** y, finalmente, **seis adultos** con un **4.3%**. Este análisis es útil para comprender las características de los clientes y evaluar si el número de adultos en el hogar influye en el comportamiento del cliente, como mayores gastos o una mayor necesidad de servicios de telecomunicaciones, lo que podría impactar en la rotación (churn).
+
+
+#### **7.1.12 Distribución del total de meses en el servicio**
 
 ```{r}
 ggplot(data, aes(x = months)) +
   geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
-  labs(title = "Distribución del total de meses en el servicio",
-       x = "Número total de meses en el servicio",
-       y = "Frecuencia") +
+  labs(
+    title = "Distribucion del total de meses en el servicio",
+    x = "Numero total de meses en el servicio",
+    y = "Frecuencia"
+  ) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = seq(0, max(data$months, na.rm = TRUE), by = 5)) +  # Set x-axis breaks
+  scale_y_continuous(breaks = seq(0, max(table(cut(data$months, seq(0, max(data$months, na.rm = TRUE), by = 5)))), by = 2000))
 ```
+
+
+Este diagrama muestra un sesgo positivo, con la mayoría de la distribución concentrada entre los **5 y 25 meses**. Esto sugiere que hay una menor cantidad de clientes después de los **25 meses**, lo que indica una tendencia a la disminución de clientes conforme aumenta el tiempo.
+
+
+#### **7.1.13 Distribución del número de días que el cliente ha tenido su equipo actual.**
 
 ```{r}
 ggplot(data, aes(x = eqpdays)) +
   geom_histogram(binwidth = 100, fill = "lightblue", color = "black") +
-  labs(title = "Distribución del número de días que el cliente ha tenido su equipo actual.",
-       x = "Número de días que el cliente ha tenido su equipo actual.",
-       y = "Frecuencia") +
+  labs(
+    title = "Distribucion del numero de dias que el cliente ha tenido su equipo actual.",
+    x = "Numero de dias que el cliente ha tenido su equipo actual.",
+    y = "Frecuencia"
+  ) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = seq(0, max(data$eqpdays, na.rm = TRUE), by = 100)) +  # Set x-axis breaks
+  scale_y_continuous(breaks = seq(0, max(table(cut(data$eqpdays, seq(0, max(data$eqpdays, na.rm = TRUE), by = 100)))), by = 2000))  # Set y-axis breaks
 ```
+
+
+Esta distribución presenta un sesgo positivo, con la mayoría de los usuarios concentrados entre **100 y 500 días** desde que adquirieron su equipo actual. Esto indica que, después de los **300 días**, hay una menor cantidad de usuarios con equipos más antiguos, lo cual podría influir en la rotación de clientes (churn), ya que los equipos más viejos pueden estar relacionados con una mayor propensión a quedarse insatisfechos con el servicio.
+
+
+#### **7.1.14 Distribución del precio del telefono.**
 
 ```{r}
 ggplot(data, aes(x = hnd_price)) +
   geom_histogram(binwidth = 20, fill = "lightblue", color = "black") +
-  labs(title = "Distribución del precio del telefono.",
-       x = "Precio del telefono",
-       y = "Frecuencia") +
+  labs(
+    title = "Distribucion del precio del telefono.",
+    x = "Precio del telefono",
+    y = "Frecuencia"
+  ) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = seq(0, max(data$hnd_price, na.rm = TRUE), by = 40)) +  # Set x-axis breaks
+  scale_y_continuous(breaks = seq(0, max(table(cut(data$hnd_price, seq(0, max(data$hnd_price, na.rm = TRUE), by = 20)))), by = 2000))  # Set y-axis breaks
+
 ```
+
+Se observa que los precios de los teléfonos varían entre **0** y **160**, y que hay menos usuarios con teléfonos cuyo precio excede los **160**.
+
+
+#### **7.1.15 Distribución de minutos de uso mensual promedio.**
 
 ```{r}
 ggplot(data, aes(x = mou_Mean)) +
   geom_histogram(binwidth = 200, fill = "lightblue", color = "black") +
-  labs(title = "Distribución de minutos de uso mensual promedio.",
-       x = "Minutos de uso mensual promedio.",
-       y = "Frecuencia") +
+  labs(
+    title = "Distribucion de minutos de uso mensual promedio.",
+    x = "Minutos de uso mensual promedio.",
+    y = "Frecuencia"
+  ) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = seq(0, max(data$mou_Mean, na.rm = TRUE), by = 1000)) +  # Set x-axis breaks
+  scale_y_continuous(breaks = seq(0, max(table(cut(data$mou_Mean, seq(0, max(data$mou_Mean, na.rm = TRUE), by = 200)))), by = 2000))  # Set y-axis breaks
 ```
+
+
+Esta distribución muestra un sesgo positivo, con la mayoría de los usuarios concentrados en un rango de **0 a 1000 minutos** promedio por mes. Esto sugiere que la mayoría de los usuarios gastan una cantidad moderada de minutos al mes, lo que refleja su comportamiento típico de uso del servicio.
+
+
+#### **7.1.16 Distribución del cargo recurrente mensual total promedio.**
 
 ```{r}
 ggplot(data, aes(x = totmrc_Mean)) +
   geom_histogram(binwidth = 10, fill = "lightblue", color = "black") +
-  labs(title = "Distribución del cargo recurrente mensual total promedio.",
-       x = "Cargo recurrente mensual total promedio",
-       y = "Frecuencia") +
+  labs(
+    title = "Distribucion del cargo recurrente mensual total promedio.",
+    x = "Cargo recurrente mensual total promedio",
+    y = "Frecuencia"
+  ) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = seq(0, max(data$totmrc_Mean, na.rm = TRUE), by = 20)) +  # Set x-axis breaks
+  scale_y_continuous(breaks = seq(0, max(table(cut(data$totmrc_Mean, seq(0, max(data$totmrc_Mean, na.rm = TRUE), by = 10)))), by = 2000))  # Set y-axis breaks
 ```
+
+
+La distribución presenta un sesgo positivo, con el cargo recurrente mensual promedio concentrado entre **20** y **80**. Esto indica que la mayoría de los usuarios tienen un cargo mensual dentro de este rango.
+
+
+#### **7.1.17 Distribución del numero de telefonos.**
 
 ```{r}
 ggplot(data, aes(x = phones)) +
   geom_histogram(binwidth = 1, fill = "lightblue", color = "black") +
-  labs(title = "Distribución del numero de telefonos.",
-       x = "Numero de telefonos",
-       y = "Frecuencia") +
+  labs(
+    title = "Distribucion del numero de telefonos.",
+    x = "Numero de telefonos",
+    y = "Frecuencia"
+  ) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = seq(0, max(data$phones, na.rm = TRUE), by = 1)) +  # Set x-axis breaks
+  scale_y_continuous(breaks = seq(0, max(table(cut(data$phones, seq(0, max(data$phones, na.rm = TRUE), by = 1)))), by = 5000))  # Set y-axis breaks
+
 ```
 
-# **5. Análisis Bivariado**
-## Frecuencia de Adultos por Churn
+
+La distribución muestra un sesgo positivo, con una concentración entre **1** y **2 teléfonos**, siendo el **1 teléfono** el caso más común. Es menos frecuente que los usuarios tengan más de **2 teléfonos**.
+
+
+## **8. Análisis Bivariado**
+### **8.1 Frecuencia de Adultos por Churn**
 ```{r}
 ggplot(data, aes(x = as.factor(churn), fill = as.factor(adults))) +
   geom_bar(position = "dodge") +
   theme_minimal() +
-  labs(title = "Frecuencia de Adultos por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Número de Adultos")
+  labs(title = "Frecuencia de Adultos por Churn", x = "Churn (0 = No, 1 = Si)", y = "Cantidad", fill = "Número de Adultos") +
+  scale_fill_brewer(palette = "Set2")
 ```
 
 La ausencia de una influencia visible del número de adultos en el churn indica que esta variable podría no ser un factor determinante en la decisión de los clientes de permanecer o abandonar el servicio. Esto sugiere que el número de adultos en el hogar puede tener una relación muy débil, o incluso inexistente, con la fidelidad o satisfacción de los clientes en este contexto de telecomunicaciones.
 
-## Frecuencia de Ingreso por Churn
+
+### **8.2 Frecuencia de Ingreso por Churn**
 ```{r}
 ggplot(data, aes(x = as.factor(churn), fill = as.factor(income))) +
   geom_bar(position = "dodge") +
@@ -668,34 +779,37 @@ ggplot(data, aes(x = as.factor(churn), fill = as.factor(income))) +
 La falta de influencia del ingreso en el churn indica que es posible priorizar otras variables en las estrategias de retención y en la construcción del modelo predictivo. Esto optimiza el análisis, focalizando en factores que realmente afectan la lealtad y satisfacción de los clientes.
 
 
-## Frecuencia de Área por Churn
+### **8.3 Frecuencia de Área por Churn**
 ```{r}
 ggplot(data, aes(x = as.factor(churn), fill = area)) +
   geom_bar(position = "dodge") +
   theme_minimal() +
-  labs(title = "Frecuencia de Área por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Área")
+  labs(title = "Frecuencia de Área por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Área") 
 ```
 No se observa ninguna influencia de las áreas geográficas  en el churn.
 
-## Frecuencia de Etnicidad por Churn
+### **8.4 Frecuencia de Etnicidad por Churn**
 ```{r}
 ggplot(data, aes(x = as.factor(churn), fill = ethnic)) +
   geom_bar(position = "dodge") +
   theme_minimal() +
-  labs(title = "Frecuencia de Etnicidad por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Etnicidad")
+  labs(title = "Frecuencia de Etnicidad por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Etnicidad") 
 ```
 No observamos una relación clara entre los grupos étnicos y en el churn.
 
-## Frecuencia de Estado Civil por Churn
+### **8.5 Frecuencia de Estado Civil por Churn**
 ```{r}
 ggplot(data, aes(x = as.factor(churn), fill = marital)) +
   geom_bar(position = "dodge") +
   theme_minimal() +
-  labs(title = "Frecuencia de Estado Civil por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Estado Civil")
+  labs(title = "Frecuencia de Estado Civil por Churn", x = "Churn (0 = No, 1 = Sí)", y = "Cantidad", fill = "Estado Civil") +
+  scale_fill_brewer(palette = "Set2")
 ```
+
 Al comparar el estado civil de los clientes, no se observa una diferencia significativa en el churn.
 
-## Caja de bigotes de Promedio de llamadas no contestadas por Churn
+### **8.6 Caja de bigotes de Promedio de llamadas no contestadas por Churn**
+
 ```{r}
 # Calculate the IQR and define the outlier bounds
 Q1 <- quantile(data$unan_vce_Mean, 0.25, na.rm = TRUE)
@@ -720,14 +834,16 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = unan_vce_Mean, fill = as.fac
   labs(title = "Caja de bigotes de Promedio de llamadas no contestadas por Churn",
        x = "Churn (0 = No, 1 = Sí)",
        y = "Llamadas no contestadas",
-       fill = "Churn")
+       fill = "Churn") +
+  scale_fill_brewer(palette = "Set2")
 
 ```
 
 
 La observación de que ambas cajas de bigotes (box plots) para los estados de churn (0 y 1) presentan un sesgo positivo y una mediana similar, con la mayoría de los datos en el rango de 5 a 30, sugiere que el promedio de llamadas no contestadas podría no ser un factor relevante para explicar el abandono del servicio. Si no se aprecian diferencias significativas en la distribución entre los clientes que permanecen (churn = 0) y los que abandonan (churn = 1), es probable que el promedio de llamadas no contestadas tenga una baja influencia en la decisión de abandono.
 
-## Caja de bigotes de Promedio de llamadas esperadas por Churn
+### **8.7 Caja de bigotes de Promedio de llamadas esperadas por Churn**
+
 ```{r}
 # Calculate the IQR and define the outlier bounds
 Q1 <- quantile(data$callwait_Mean, 0.25, na.rm = TRUE)
@@ -752,11 +868,15 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = callwait_Mean, fill = as.fac
   labs(title = "Caja de bigotes de Promedio de llamadas esperadas por Churn",
        x = "Churn (0 = No, 1 = Sí)",
        y = "Promedio de llamadas esperadas",
-       fill = "Churn")
+       fill = "Churn") +
+  scale_fill_brewer(palette = "Set2")
 ```
 
 
 La observación de que ambas cajas de bigotes para los estados de churn (0 y 1) muestran un sesgo positivo, con medianas similares y la mayoría de los datos en el rango de 0.0 a 0.7 en el promedio de llamadas esperadas, sugiere que esta variable no es un factor diferenciador entre clientes que abandonan y aquellos que permanecen. La falta de diferencias significativas entre las distribuciones para churn indica que el promedio de llamadas esperadas probablemente no influye en la decisión de abandono.
+
+
+### **8.8 Número total de meses en el servicio por Churn**
 
 
 ```{r}
@@ -783,8 +903,15 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = months, fill = as.factor(chu
   labs(title = "Número total de meses en el servicio por Churn",
        x = "Churn (0 = No, 1 = Sí)",
        y = "Número total de meses en el servicio",
-       fill = "Churn")
+       fill = "Churn") +
+  scale_fill_brewer(palette = "Set2")
 ```
+
+
+Visualmente, no se observa una diferencia significativa en la influencia del número total de meses en el servicio sobre el churn. Esto se debe a que tanto la media de los datos como el tamaño de las cajas entre las categorías 0 y 1 son muy similares.
+
+
+### **8.9 Edad del equipo por Churn**
 
 ```{r}
 # Calculate the IQR and define the outlier bounds
@@ -810,8 +937,15 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = eqpdays, fill = as.factor(ch
   labs(title = "Edad del equipo por Churn",
        x = "Churn (0 = No, 1 = Sí)",
        y = "Edad del equipo",
-       fill = "Churn")
+       fill = "Churn") +
+  scale_fill_brewer(palette = "Set2")
 ```
+
+
+El boxplot sugiere una ligera tendencia que indica que los clientes que realizaron churn tienden a tener una mayor antigüedad con el dispositivo que utilizan. 
+
+
+### **8.10 Precio del telefono por Churn**
 
 ```{r}
 # Calculate the IQR and define the outlier bounds
@@ -837,8 +971,15 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = hnd_price, fill = as.factor(
   labs(title = "Precio del telefono por Churn",
        x = "Churn (0 = No, 1 = Sí)",
        y = "Precio del telefono",
-       fill = "Churn")
+       fill = "Churn") +
+  scale_fill_brewer(palette = "Set2")
 ```
+
+
+La gráfica sugiere que el precio del teléfono podría influir en la decisión de churn de un cliente. Sin embargo, sería necesario analizar esta relación en conjunto con otras variables para confirmar esta hipótesis. 
+
+
+### **8.11 Minutos de uso mensual promedio por Churn**
 
 ```{r}
 # Calculate the IQR and define the outlier bounds
@@ -864,8 +1005,15 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = mou_Mean, fill = as.factor(c
   labs(title = "Minutos de uso mensual promedio por Churn",
        x = "Churn (0 = No, 1 = Sí)",
        y = "Minutos de uso mensual promedio",
-       fill = "Churn")
+       fill = "Churn") +
+  scale_fill_brewer(palette = "Set2")
 ```
+
+
+La gráfica no permite determinar si el promedio de minutos de uso mensual tiene alguna influencia en el churn de los clientes. 
+
+
+### **8.12 Cargo recurrente mensual total promedio por Churn.**
 
 ```{r}
 # Calculate the IQR and define the outlier bounds
@@ -891,8 +1039,14 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = totmrc_Mean, fill = as.facto
   labs(title = "Cargo recurrente mensual total promedio por Churn",
        x = "Churn (0 = No, 1 = Sí)",
        y = "Cargo recurrente mensual total promedio",
-       fill = "Churn")
+       fill = "Churn") +
+  scale_fill_brewer(palette = "Set2")
 ```
+
+Se observa una ligera relación entre los clientes que no realizaron churn y el promedio del cargo recurrente mensual total. 
+
+
+### **8.13 Número de telefonos por Churn**
 
 ```{r}
 # Calculate the IQR and define the outlier bounds
@@ -918,11 +1072,15 @@ ggplot(filtered_data, aes(x = as.factor(churn), y = phones, fill = as.factor(chu
   labs(title = "Número de telefonos por Churn",
        x = "Churn (0 = No, 1 = Sí)",
        y = "Número de telefonos",
-       fill = "Churn")
+       fill = "Churn") +
+  scale_fill_brewer(palette = "Set2")
 ```
 
 
-# **6. Análisis Multivariado**
+Visualmente, no es posible distinguir si existe una relación entre el número de teléfonos y la decisión del cliente de hacer churn. 
+
+
+## **9. Análisis Multivariado**
 ```{r}
 data_numerico <- select_if(data, is.numeric)
 ```
@@ -1059,8 +1217,8 @@ print(resultado_ttest4)
 Al analizar churn con el Número medio de llamadas al servicio de atención al cliente tenemos los siguientes resultados: t = 11.522, df = 99824, p-value < 2.2e-16.
 Este resultado sugiere que los clientes que hicieron churn (churn = 1) realizaron un número significativamente mayor de llamadas al servicio de atención al cliente en comparación con los clientes que no hicieron churn (churn = 0). La diferencia es estadísticamente significativa, lo que puede indicar que los clientes que se sienten insatisfechos o tienen problemas frecuentes tienden a llamar más al servicio de atención y tienen una mayor probabilidad de abandonar el servicio.
 
-# **7. Modelamiento**
-## **7.1 Selecionar las colmunas para entrenar el modelo**
+## **10. Modelamiento**
+### **10.1 Selecionar las colmunas para entrenar el modelo**
 
 ```{r}
 # Selecting specific columns
@@ -1070,7 +1228,7 @@ selected_columns <- data %>%
 head(selected_columns)
 ```
 
-## **7.2 Convertir datos categóricos en variables numéricas**
+### **10.2 Convertir datos categóricos en variables numéricas**
 
 ```{r}
 # Define target and predictor variables
@@ -1096,7 +1254,7 @@ head(encoded_data)
 
 ```
 
-## **7.3 Guardar los datos para usarlos como conjunto de entrenamiento**
+### **10.3 Guardar los datos para usarlos como conjunto de entrenamiento**
 
 ```{r}
 # Assuming 'encoded_data' is the dataset with the encoded categorical variables
@@ -1109,14 +1267,14 @@ train_x <- as.matrix(predictors)
 train_y <- as.numeric(target)  # Convert target to numeric (0 or 1)
 ```
 
-## **7.4  Probar distintos modelos de clasificación**
+### **10.4  Probar distintos modelos de clasificación**
 
 ```{r message=FALSE, warning=FALSE, echo=TRUE, results='hide'}
 # Set a seed for reproducibility
 set.seed(123)
 
 # Calculate the sample size (1% of the original data)
-sample_size <- floor(0.05 * nrow(train_x))  # 1% of the number of rows
+sample_size <- floor(0.10 * nrow(train_x))  # 1% of the number of rows
 
 # Sample the rows from both train_x and train_y
 sample_indices <- sample(nrow(train_x), size = sample_size)
@@ -1198,22 +1356,41 @@ cat("Best Model: ", best_model_name, "\n")
 print(best_model)
 ```
 
-## **7.5 Configuración de los parámetros para la optimización de un modelo XGBoost**
+
+La gráfica compara el desempeño de diferentes modelos de machine learning en términos del área bajo la curva ROC, destacando que **gbm**, **xgbTree** y **rf** son los más efectivos, siendo **gbm** el mejor, seguido de cerca por **xgbTree**, mientras que **rf** presenta un rendimiento ligeramente menor.
+
+
+### **10.5 Configuración de los parámetros para la optimización de los modelos XGBoost, GBM, y RF**
+
 
 ```{r}
-tune_grid <- expand.grid(
-  nrounds = c(50, 100, 150),        # Number of boosting rounds (trees)
-  max_depth = c(3, 6, 10),          # Depth of trees
-  eta = c(0.01, 0.1, 0.3),         # Learning rate
-  gamma = c(0, 1),                  # Regularization parameter
-  colsample_bytree = c(0.6, 0.8),   # Fraction of features used for each tree
-  min_child_weight = c(1, 5),       # Minimum sum of instance weight (used for pruning)
-  subsample = c(0.6, 0.8)           # Fraction of samples used for each tree
+# Hyperparameters for XGBoost (as provided)
+tune_grid_xgb <- expand.grid(
+  nrounds = c(50, 100, 150),
+  max_depth = c(3, 6, 10),
+  eta = c(0.01, 0.1, 0.3),
+  gamma = c(0, 1),
+  colsample_bytree = c(0.6, 0.8),
+  min_child_weight = c(1, 5),
+  subsample = c(0.6, 0.8)
+)
+
+# Hyperparameters for GBM
+tune_grid_gbm <- expand.grid(
+  n.trees = c(50, 100, 150),
+  interaction.depth = c(3, 5, 7),
+  shrinkage = c(0.01, 0.1, 0.3),
+  n.minobsinnode = c(5, 10)
+)
+
+# Hyperparameters for Random Forest (RF)
+tune_grid_rf <- expand.grid(
+  mtry = c(2, 4, 6, 8)  # Number of variables to sample at each split
 )
 ```
 
 
-## **7.6 Configurar el control de validación cruzada.**
+### **10.6 Configurar el control de validación cruzada.**
 
 ```{r}
 # Set up cross-validation control
@@ -1225,63 +1402,160 @@ train_control <- trainControl(
 ```
 
 
-## **7.7 Encontrar los mejores hiperparámetros**
+### **10.7 Tuning de XGBoost**
 
 ```{r warning=FALSE, include=FALSE}
-# Use a random subset of the data (e.g., 10% of the data)
 set.seed(123)
-subset_data <- encoded_data[sample(1:nrow(encoded_data), size = 0.01 * nrow(encoded_data)), ]
-
-# Perform tuning on the subset of data
+subset_data <- encoded_data[sample(1:nrow(encoded_data), size = 0.1 * nrow(encoded_data)), ]
 xgb_tune <- train(
-  churn ~ .,               # Formula: predict churn based on all other variables
-  data = subset_data,      # Use the subset data
-  method = "xgbTree",          # Generalized Boosted Regression Model (GBM)
-  trControl = train_control,  # Cross-validation setup
-  tuneGrid = tune_grid      # Hyperparameter grid for GBM
+  churn ~ .,                # Formula: predict churn based on all other variables
+  data = subset_data,       # Use subset data
+  method = "xgbTree",       # XGBoost model
+  trControl = train_control, # Cross-validation setup
+  tuneGrid = tune_grid_xgb   # Hyperparameter grid for XGBoost
 )
-
 ```
 
-## **7.8 Imprimir los hiperparámetros**
-
 ```{r}
+# Print best XGBoost hyperparameters
 print(xgb_tune$bestTune)
 ```
 
-## **7.9 Entrenar el modelo utilizando los hiperparámetros óptimos**
 
-```{r}
+### **10.8 Entrenar el modelo XGBoost con los mejores hiperparámetros**
+
+
+```{r warning=FALSE}
 # Convert the dataset into an XGBoost-compatible format
 dtrain <- xgb.DMatrix(data = train_x, label = train_y)
 
 # Set parameters for binary classification
-params <- list(
-  objective = "binary:logistic",  # Binary classification
-  eval_metric = "error",          # Metric to evaluate model (classification error)
-  max_depth = xgb_tune$bestTune$max_depth,                  # Max depth of trees
-  eta = xgb_tune$bestTune$eta,                      # Learning rate
-  nthread = 3,                    # Number of threads to use
+params_xgb <- list(
+  objective = "binary:logistic",
+  eval_metric = "error",
+  max_depth = xgb_tune$bestTune$max_depth,
+  eta = xgb_tune$bestTune$eta,
+  nthread = 3,
   gamma = xgb_tune$bestTune$gamma,
-  subsample = xgb_tune$bestTune$subsample,                # Fraction of samples used per tree
-  colsample_bytree = xgb_tune$bestTune$colsample_bytree          # Fraction of features used per tree
+  subsample = xgb_tune$bestTune$subsample,
+  colsample_bytree = xgb_tune$bestTune$colsample_bytree
 )
-
-# Train the model
-model <- xgb.train(params, dtrain, nrounds = xgb_tune$bestTune$nrounds)
 ```
 
-## **7.10 Evaluar los resultados**
+
+
+```{r warning=FALSE}
+# Train the model
+model_xgb <- xgb.train(params_xgb, dtrain, nrounds = xgb_tune$bestTune$nrounds)
+```
+
+### **10.9 Tuning de GBM**
 
 ```{r}
-# Make predictions on the training data (or new data)
-predictions <- predict(model, train_x)
+# Perform tuning for GBM using the subset data
+gbm_tune <- train(
+  churn ~ .,                # Formula: predict churn based on all other variables
+  data = subset_data,       # Use subset data
+  method = "gbm",           # Generalized Boosting Model
+  trControl = train_control, # Cross-validation setup
+  tuneGrid = tune_grid_gbm   # Hyperparameter grid for GBM
+)
 
-# Convert predictions to binary (0 or 1)
-predictions_binary <- ifelse(predictions > 0.5, 1, 0)
+# Print best GBM hyperparameters
+print(gbm_tune$bestTune)
+```
 
-# Evaluate the model performance
-confusionMatrix(factor(predictions_binary), factor(train_y))
+
+### **10.10 Entrenar el modelo GBM con los mejores hiperparámetros**
+
+
+```{r}
+# Train the model using the best hyperparameters
+library(gbm)
+
+model_gbm <- gbm(
+  churn ~ ., 
+  data = subset_data, 
+  distribution = "bernoulli", 
+  n.trees = gbm_tune$bestTune$n.trees,
+  interaction.depth = gbm_tune$bestTune$interaction.depth,
+  shrinkage = gbm_tune$bestTune$shrinkage,
+  n.minobsinnode = gbm_tune$bestTune$n.minobsinnode
+)
+```
+
+
+### **10.11 Tuning de Random Forest (RF)**
+
+```{r warning=FALSE, include=FALSE}
+# Ensure that 'churn' is a factor for classification
+subset_data$churn <- as.factor(subset_data$churn)
+
+# Perform tuning for Random Forest using the subset data
+rf_tune <- train(
+  churn ~ .,                # Formula: predict churn based on all other variables
+  data = subset_data,       # Use subset data
+  method = "rf",            # Random Forest model
+  trControl = train_control, # Cross-validation setup
+  tuneGrid = tune_grid_rf    # Hyperparameter grid for Random Forest
+)
 
 ```
 
+
+```{r}
+# Print best Random Forest hyperparameters
+print(rf_tune$bestTune)
+```
+
+
+### **10.12 Entrenar el modelo RF con los mejores hiperparámetros**
+
+```{r warning=FALSE}
+library(randomForest)
+# Train the model using the best hyperparameters
+model_rf <- randomForest(
+  churn ~ ., 
+  data = subset_data,
+  mtry = rf_tune$bestTune$mtry,
+  nodesize = rf_tune$bestTune$min.node.size
+)
+```
+
+
+
+### **10.13 Evaluación de los modelos**
+```{r}
+# Convert train_x to a numeric matrix
+train_x <- as.matrix(train_x)
+
+# Ensure train_y is numeric for xgboost
+train_y <- as.numeric(as.character(train_y))
+
+```
+
+
+```{r}
+# Evaluate XGBoost performance
+predictions_xgb <- predict(model_xgb, train_x)
+predictions_xgb_binary <- ifelse(predictions_xgb > 0.5, 1, 0)
+confusionMatrix(factor(predictions_xgb_binary), factor(train_y))
+```
+
+```{r}
+train_x <- as.data.frame(train_x)
+
+# Evaluate GBM performance
+predictions_gbm <- predict(model_gbm, train_x, n.trees = gbm_tune$bestTune$n.trees)
+predictions_gbm_binary <- ifelse(predictions_gbm > 0.5, 1, 0)  # Convert probabilities to binary
+confusionMatrix(factor(predictions_gbm_binary), factor(train_y))
+```
+
+
+```{r}
+# Evaluate Random Forest performance
+predictions_rf <- predict(model_rf, train_x)
+confusionMatrix(factor(predictions_rf), factor(train_y))
+```
+
+Se observa que el **accuracy** del modelo **XGBoost** es de **0.616**, el de **GBM** es de **0.5653** y el de **Random Forest** es de **0.6377**. Esto indica que el modelo con mejor desempeño, en términos de exactitud, es **Random Forest**, por lo que sería el más adecuado para su implementación.
