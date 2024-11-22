@@ -1269,7 +1269,7 @@ train_y <- as.numeric(target)  # Convert target to numeric (0 or 1)
 
 ### **10.4  Probar distintos modelos de clasificación**
 
-```{r message=FALSE, warning=FALSE, echo=TRUE, results='hide'}
+```{r message=FALSE, warning=FALSE, echo=TRUE, results='hide', cache=TRUE}
 # Set a seed for reproducibility
 set.seed(123)
 
@@ -1404,7 +1404,7 @@ train_control <- trainControl(
 
 ### **10.7 Tuning de XGBoost**
 
-```{r warning=FALSE, include=FALSE}
+```{r warning=FALSE, include=FALSE, cache=TRUE}
 set.seed(123)
 subset_data <- encoded_data[sample(1:nrow(encoded_data), size = 0.1 * nrow(encoded_data)), ]
 xgb_tune <- train(
@@ -1425,7 +1425,7 @@ print(xgb_tune$bestTune)
 ### **10.8 Entrenar el modelo XGBoost con los mejores hiperparámetros**
 
 
-```{r warning=FALSE}
+```{r warning=FALSE, cache=TRUE}
 # Convert the dataset into an XGBoost-compatible format
 dtrain <- xgb.DMatrix(data = train_x, label = train_y)
 
@@ -1451,7 +1451,7 @@ model_xgb <- xgb.train(params_xgb, dtrain, nrounds = xgb_tune$bestTune$nrounds)
 
 ### **10.9 Tuning de GBM**
 
-```{r}
+```{r warning=TRUE, cache=TRUE, include=FALSE, echo=TRUE, results='hide'}
 # Perform tuning for GBM using the subset data
 gbm_tune <- train(
   churn ~ .,                # Formula: predict churn based on all other variables
@@ -1469,7 +1469,7 @@ print(gbm_tune$bestTune)
 ### **10.10 Entrenar el modelo GBM con los mejores hiperparámetros**
 
 
-```{r}
+```{r cache=TRUE}
 # Train the model using the best hyperparameters
 library(gbm)
 
@@ -1487,7 +1487,7 @@ model_gbm <- gbm(
 
 ### **10.11 Tuning de Random Forest (RF)**
 
-```{r warning=FALSE, include=FALSE}
+```{r warning=FALSE, include=FALSE, cache=TRUE,  echo=TRUE, results='hide'}
 # Ensure that 'churn' is a factor for classification
 subset_data$churn <- as.factor(subset_data$churn)
 
@@ -1558,4 +1558,7 @@ predictions_rf <- predict(model_rf, train_x)
 confusionMatrix(factor(predictions_rf), factor(train_y))
 ```
 
-Se observa que el **accuracy** del modelo **XGBoost** es de **0.616**, el de **GBM** es de **0.5653** y el de **Random Forest** es de **0.6377**. Esto indica que el modelo con mejor desempeño, en términos de exactitud, es **Random Forest**, por lo que sería el más adecuado para su implementación.
+
+Se observa que el **accuracy** del modelo **XGBoost** es de **0.616**, el de **GBM** es de **0.5653** y el de **Random Forest** es de **0.6338**. Esto indica que el modelo con mejor desempeño, en términos de exactitud, es **Random Forest**, por lo que sería el más adecuado para su implementación.
+
+
